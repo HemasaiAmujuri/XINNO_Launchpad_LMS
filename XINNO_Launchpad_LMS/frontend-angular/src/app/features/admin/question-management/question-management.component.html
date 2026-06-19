@@ -1,0 +1,370 @@
+<div class="question-management-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>📝 Question Bank Management</h1>
+      <p>Create and manage questions for assessments</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="goToCreateAssessment()">
+        📋 Create Assessment
+      </button>
+      <button class="btn btn-primary" (click)="openModal()">
+        ➕ Add New Question
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ questions.length || 0 }}</div>
+        <div class="stat-label">Total Questions</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ mcqQuestionsCount }}</div>
+        <div class="stat-label">MCQ Questions</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📝</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ descriptiveQuestionsCount }}</div>
+        <div class="stat-label">Descriptive Questions</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ activeQuestionsCount }}</div>
+        <div class="stat-label">Active Questions</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <label>🔍 Search:</label>
+      <input 
+        type="text" 
+        class="filter-input"
+        placeholder="Search questions..."
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applyFilters()"
+      />
+    </div>
+    
+    <div class="filter-group">
+      <label>📑 Type:</label>
+      <select class="filter-select" [(ngModel)]="filterType" (ngModelChange)="applyFilters()">
+        <option value="ALL">All Types</option>
+        <option value="MCQ">MCQ</option>
+        <option value="DESCRIPTIVE">Descriptive</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label>⚡ Difficulty:</label>
+      <select class="filter-select" [(ngModel)]="filterDifficulty" (ngModelChange)="applyFilters()">
+        <option value="ALL">All Levels</option>
+        <option value="EASY">Easy</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HARD">Hard</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label>📚 Course:</label>
+      <input 
+        type="text" 
+        class="filter-input"
+        placeholder="Filter by course..."
+        [(ngModel)]="filterCourse"
+        (ngModelChange)="applyFilters()"
+      />
+    </div>
+  </div>
+
+  <!-- Alert Messages -->
+  <div class="alert alert-success" *ngIf="success">
+    ✅ {{ success }}
+  </div>
+  <div class="alert alert-error" *ngIf="error && !showModal">
+    ❌ {{ error }}
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-screen" *ngIf="isLoading && !showModal">
+    <div class="spinner"></div>
+    <p>Loading questions...</p>
+  </div>
+
+  <!-- Questions Table -->
+  <div class="questions-table" *ngIf="!isLoading">
+    <div class="table-header">
+      <div class="results-info">
+        Showing {{ paginatedQuestions.length }} of {{ filteredQuestions.length }} questions
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th width="5%">#</th>
+            <th width="40%">Question</th>
+            <th width="10%">Type</th>
+            <th width="10%">Difficulty</th>
+            <th width="10%">Marks</th>
+            <th width="10%">Course</th>
+            <th width="10%">Status</th>
+            <th width="15%">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let question of paginatedQuestions; let i = index">
+            <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+            <td class="question-cell">
+              <div class="question-preview">{{ question.questionText }}</div>
+              <div class="question-meta" *ngIf="question.type === 'MCQ'">
+                <span class="meta-badge">{{ question.options?.length }} Options</span>
+              </div>
+              <div class="question-meta" *ngIf="question.type === 'DESCRIPTIVE'">
+                <span class="meta-badge">Max {{ question.characterLimit }} chars</span>
+              </div>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="question.type === 'MCQ' ? 'badge-mcq' : 'badge-descriptive'">
+                {{ question.type }}
+              </span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'badge-easy': question.difficulty === 'EASY',
+                'badge-medium': question.difficulty === 'MEDIUM',
+                'badge-hard': question.difficulty === 'HARD'
+              }">
+                {{ question.difficulty }}
+              </span>
+            </td>
+            <td class="text-center">
+              <strong>{{ question.marks }}</strong>
+            </td>
+            <td>
+              <span class="course-tag">{{ question.courseLevel }}</span>
+            </td>
+            <td>
+              <button 
+                class="status-toggle"
+                [ngClass]="question.isActive ? 'status-active' : 'status-inactive'"
+                (click)="toggleActive(question)"
+              >
+                {{ question.isActive ? '✓ Active' : '✗ Inactive' }}
+              </button>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn-icon btn-edit" (click)="openModal(question)" title="Edit">
+                  ✏️
+                </button>
+                <button class="btn-icon btn-delete" (click)="deleteQuestion(question)" title="Delete">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="paginatedQuestions.length === 0">
+            <td colspan="8" class="no-data">
+              <div class="no-data-message">
+                <span class="no-data-icon">📭</span>
+                <p>No questions found</p>
+                <button class="btn btn-primary" (click)="openModal()">
+                  Add Your First Question
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button 
+        class="btn btn-secondary btn-sm"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+      >
+        ← Previous
+      </button>
+      <span class="page-info">
+        Page {{ currentPage }} of {{ totalPages }}
+      </span>
+      <button 
+        class="btn btn-secondary btn-sm"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next →
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ editingQuestion ? '✏️ Edit Question' : '➕ Add New Question' }}</h2>
+        <button class="close-btn" (click)="closeModal()">×</button>
+      </div>
+
+      <form [formGroup]="questionForm" (ngSubmit)="saveQuestion()">
+        <div class="modal-body">
+          <!-- Alert in Modal -->
+          <div class="alert alert-success" *ngIf="success">
+            ✅ {{ success }}
+          </div>
+          <div class="alert alert-error" *ngIf="error">
+            ❌ {{ error }}
+          </div>
+
+          <!-- Question Text -->
+          <div class="form-group">
+            <label>Question Text <span class="required">*</span></label>
+            <textarea 
+              formControlName="questionText"
+              rows="4"
+              placeholder="Enter your question here..."
+              class="form-control"
+            ></textarea>
+            <div class="form-error" *ngIf="questionForm.get('questionText')?.invalid && questionForm.get('questionText')?.touched">
+              Question must be at least 10 characters long
+            </div>
+          </div>
+
+          <!-- Type and Marks Row -->
+          <div class="form-row">
+            <div class="form-group">
+              <label>Question Type <span class="required">*</span></label>
+              <select formControlName="type" class="form-control">
+                <option value="MCQ">Multiple Choice (MCQ)</option>
+                <option value="DESCRIPTIVE">Descriptive Answer</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Marks <span class="required">*</span></label>
+              <input 
+                type="number" 
+                formControlName="marks"
+                min="1"
+                max="100"
+                class="form-control"
+              />
+            </div>
+          </div>
+
+          <!-- Difficulty and Course Row -->
+          <div class="form-row">
+            <div class="form-group">
+              <label>Difficulty Level <span class="required">*</span></label>
+              <select formControlName="difficulty" class="form-control">
+                <option value="EASY">Easy</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HARD">Hard</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Course/Topic <span class="required">*</span></label>
+              <select 
+                formControlName="courseLevel"
+                class="form-control"
+              >
+                <option value="">Select Course</option>
+                <option value="FULL_STACK">Full Stack Development</option>
+                <option value="CRT">CRT (Campus Recruitment Training)</option>
+                <option value="ORACLE">Oracle</option>
+                <option value="EPM">EPM (Enterprise Performance Management)</option>
+                <option value="OIC">OIC (Oracle Integration Cloud)</option>
+              </select>
+              <small class="form-hint">Select the course this question belongs to</small>
+            </div>
+          </div>
+
+          <!-- MCQ Options -->
+          <div class="mcq-section" *ngIf="questionForm.get('type')?.value === 'MCQ'">
+            <label>Answer Options <span class="required">*</span></label>
+            <div formArrayName="options">
+              <div class="option-item" *ngFor="let option of options.controls; let i = index">
+                <span class="option-label">{{ getOptionLabel(i) }}.</span>
+                <input 
+                  type="text"
+                  [formControlName]="i"
+                  placeholder="Enter option {{ getOptionLabel(i) }}"
+                  class="form-control"
+                />
+                <button 
+                  type="button"
+                  class="btn-icon btn-delete"
+                  (click)="removeOption(i)"
+                  [disabled]="options.length <= 2"
+                  title="Remove option"
+                >
+                  ✗
+                </button>
+              </div>
+            </div>
+            <button 
+              type="button" 
+              class="btn btn-secondary btn-sm"
+              (click)="addOption()"
+            >
+              ➕ Add Option
+            </button>
+
+            <!-- Correct Answer -->
+            <div class="form-group" style="margin-top: 20px;">
+              <label>Correct Answer <span class="required">*</span></label>
+              <select formControlName="correctAnswer" class="form-control">
+                <option value="">Select correct answer...</option>
+                <option *ngFor="let option of options.controls; let i = index" [value]="option.value">
+                  {{ getOptionLabel(i) }}. {{ option.value }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Descriptive Character Limit -->
+          <div class="form-group" *ngIf="questionForm.get('type')?.value === 'DESCRIPTIVE'">
+            <label>Character Limit <span class="required">*</span></label>
+            <input 
+              type="number" 
+              formControlName="characterLimit"
+              min="50"
+              max="5000"
+              class="form-control"
+            />
+            <small class="form-hint">Minimum 50 characters required</small>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()" [disabled]="isLoading">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading || questionForm.invalid">
+            <span *ngIf="isLoading">Saving...</span>
+            <span *ngIf="!isLoading">{{ editingQuestion ? 'Update Question' : 'Create Question' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

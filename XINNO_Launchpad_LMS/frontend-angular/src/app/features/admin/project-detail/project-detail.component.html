@@ -1,0 +1,224 @@
+<div class="project-detail-container">
+  <div class="header">
+    <button class="btn-back" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i> Back to Projects
+    </button>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="editProject()">
+        <i class="bi bi-pencil"></i> Edit Project
+      </button>
+      <button class="btn btn-danger" (click)="deleteProject()">
+        <i class="bi bi-trash"></i> Delete
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading project details...</p>
+  </div>
+
+  <div *ngIf="error && !loading" class="error-state alert alert-danger">
+    {{ error }}
+    <button class="btn btn-primary mt-3" (click)="loadProject()">Retry</button>
+  </div>
+
+  <div *ngIf="project && !loading && !error" class="project-content">
+    <!-- Project Header Card -->
+    <div class="project-header-card">
+      <div class="project-title-section">
+        <h1>{{ project.title }}</h1>
+        <span 
+          class="badge"
+          [ngClass]="{
+            'badge-success': project.isCompleted,
+            'badge-warning': !project.isCompleted
+          }">
+          {{ project.isCompleted ? 'Completed' : 'In Progress' }}
+        </span>
+      </div>
+      <p class="project-description">{{ project.description }}</p>
+
+      <div class="progress-section">
+        <div class="progress-header">
+          <span>Overall Progress</span>
+          <span class="progress-percent">{{ project.completionPercent }}%</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" [style.width.%]="project.completionPercent"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project Details Grid -->
+    <div class="details-grid">
+      <div class="detail-card">
+        <h3><i class="bi bi-person"></i> Student Details</h3>
+        <div class="detail-item">
+          <span class="label">Name:</span>
+          <span class="value">{{ project.student?.name || 'N/A' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Email:</span>
+          <span class="value">{{ project.student?.email || 'N/A' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Batch:</span>
+          <span class="value">{{ project.student?.batchName || 'N/A' }}</span>
+        </div>
+      </div>
+
+      <div class="detail-card">
+        <h3><i class="bi bi-person-badge"></i> Mentor Details</h3>
+        <div class="detail-item">
+          <span class="label">Name:</span>
+          <span class="value">{{ project.mentor?.name || 'Not Assigned' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Email:</span>
+          <span class="value">{{ project.mentor?.email || 'N/A' }}</span>
+        </div>
+      </div>
+
+      <div class="detail-card">
+        <h3><i class="bi bi-info-circle"></i> Project Info</h3>
+        <div class="detail-item">
+          <span class="label">Course Type:</span>
+          <span class="value">{{ project.courseType }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Current Stage:</span>
+          <span class="value">{{ getStageDisplayName(project.currentStage) }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Start Date:</span>
+          <span class="value">{{ formatDate(project.startDate) }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">End Date:</span>
+          <span class="value">{{ formatDate(project.endDate) }}</span>
+        </div>
+        <div class="detail-item" *ngIf="project.finalGrade">
+          <span class="label">Final Grade:</span>
+          <span class="value">{{ project.finalGrade }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage Progress -->
+    <div class="stages-section">
+      <h2><i class="bi bi-list-check"></i> Stage Progress</h2>
+      <div class="stages-list">
+        <div 
+          *ngFor="let stage of project.stageProgress" 
+          class="stage-card"
+          [ngClass]="getStatusClass(stage.status)">
+          <div class="stage-header">
+            <div class="stage-info">
+              <h3>{{ getStageDisplayName(stage.stage) }}</h3>
+              <span class="stage-status badge" [ngClass]="{
+                'badge-warning': stage.status === 'PENDING',
+                'badge-info': stage.status === 'IN_PROGRESS',
+                'badge-success': stage.status === 'COMPLETED'
+              }">
+                {{ stage.status }}
+              </span>
+            </div>
+            <div class="stage-actions">
+              <button 
+                class="btn btn-sm btn-primary"
+                (click)="openReviewModal(stage)">
+                <i class="bi bi-pencil"></i> Review
+              </button>
+            </div>
+          </div>
+
+          <div class="stage-details">
+            <div class="detail-row" *ngIf="stage.startDate">
+              <span class="label">Started:</span>
+              <span class="value">{{ formatDate(stage.startDate) }}</span>
+            </div>
+            <div class="detail-row" *ngIf="stage.completionDate">
+              <span class="label">Completed:</span>
+              <span class="value">{{ formatDate(stage.completionDate) }}</span>
+            </div>
+            <div class="detail-row" *ngIf="stage.isApproved">
+              <span class="label">Approved:</span>
+              <span class="value text-success">
+                <i class="bi bi-check-circle-fill"></i> Yes
+              </span>
+            </div>
+            <div class="detail-row" *ngIf="stage.mentorRemarks">
+              <span class="label">Mentor Remarks:</span>
+              <div class="remarks-box">{{ stage.mentorRemarks }}</div>
+            </div>
+            <div class="detail-row" *ngIf="stage.studentNotes">
+              <span class="label">Student Notes:</span>
+              <div class="remarks-box">{{ stage.studentNotes }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents Section -->
+    <div class="documents-section" *ngIf="project.documents && project.documents.length > 0">
+      <h2><i class="bi bi-file-earmark-text"></i> Documents</h2>
+      <div class="documents-list">
+        <div *ngFor="let doc of project.documents" class="document-card">
+          <div class="doc-icon">
+            <i class="bi bi-file-earmark-pdf"></i>
+          </div>
+          <div class="doc-info">
+            <h4>{{ doc.title }}</h4>
+            <p>{{ doc.fileType }} • {{ getStageDisplayName(doc.stage) }}</p>
+            <small>Uploaded: {{ formatDate(doc.createdAt) }}</small>
+          </div>
+          <a [href]="doc.fileUrl" target="_blank" class="btn btn-sm btn-primary">
+            <i class="bi bi-download"></i> Download
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal" [class.show]="showReviewModal" *ngIf="showReviewModal">
+  <div class="modal-overlay" (click)="closeReviewModal()"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Review Stage: {{ getStageDisplayName(selectedStage?.stage || '') }}</h3>
+      <button class="close-btn" (click)="closeReviewModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Mentor Remarks *</label>
+        <textarea
+          class="form-control"
+          rows="5"
+          [(ngModel)]="reviewForm.mentorRemarks"
+          placeholder="Enter your review remarks...">
+        </textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input 
+            type="checkbox" 
+            [(ngModel)]="reviewForm.isApproved">
+          <span>Approve this stage</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeReviewModal()">Cancel</button>
+      <button 
+        class="btn btn-primary" 
+        (click)="submitReview()"
+        [disabled]="!reviewForm.mentorRemarks">
+        Submit Review
+      </button>
+    </div>
+  </div>
+</div>

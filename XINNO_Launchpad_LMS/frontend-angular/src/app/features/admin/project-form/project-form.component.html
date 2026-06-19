@@ -1,0 +1,129 @@
+<div class="project-form-container">
+  <div class="header">
+    <h1>{{ isEditMode ? 'Edit Project' : 'Create New Project' }}</h1>
+    <button class="btn-back" (click)="cancel()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>{{ isEditMode ? 'Loading project...' : 'Creating project...' }}</p>
+  </div>
+
+  <div *ngIf="!loading" class="form-card">
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="title" class="form-label">Project Title *</label>
+          <input
+            type="text"
+            id="title"
+            class="form-control"
+            [(ngModel)]="formData.title"
+            name="title"
+            placeholder="Enter project title"
+            required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="description" class="form-label">Description *</label>
+          <textarea
+            id="description"
+            class="form-control"
+            rows="4"
+            [(ngModel)]="formData.description"
+            name="description"
+            placeholder="Enter project description"
+            required></textarea>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="studentId" class="form-label">Select Student *</label>
+          <select
+            id="studentId"
+            class="form-control"
+            [(ngModel)]="formData.studentId"
+            name="studentId"
+            required>
+            <option value="">-- Select Student --</option>
+            <option *ngFor="let student of students" [value]="student.id">
+              {{ student.name }} ({{ student.email }})
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="mentorId" class="form-label">Assign Mentor</label>
+          <select
+            id="mentorId"
+            class="form-control"
+            [(ngModel)]="formData.mentorId"
+            name="mentorId">
+            <option value="">-- Select Mentor (Optional) --</option>
+            <option *ngFor="let mentor of mentors" [value]="mentor.id">
+              {{ mentor.name }} ({{ mentor.role }})
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="courseType" class="form-label">Course Type *</label>
+          <select
+            id="courseType"
+            class="form-control"
+            [(ngModel)]="formData.courseType"
+            name="courseType"
+            required>
+            <option value="">-- Select Course Type --</option>
+            <option *ngFor="let type of courseTypes" [value]="type">
+              {{ type }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="startDate" class="form-label">Start Date *</label>
+          <input
+            type="date"
+            id="startDate"
+            class="form-control"
+            [(ngModel)]="formData.startDate"
+            name="startDate"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="endDate" class="form-label">End Date *</label>
+          <input
+            type="date"
+            id="endDate"
+            class="form-control"
+            [(ngModel)]="formData.endDate"
+            name="endDate"
+            required>
+        </div>
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger">
+        {{ error }}
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="cancel()">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          <i class="bi bi-check-circle"></i>
+          {{ isEditMode ? 'Update Project' : 'Create Project' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

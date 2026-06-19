@@ -1,0 +1,72 @@
+/* Dashboard Component - Content Only Styles */
+/* Most styling comes from Tailwind utilities */
+
+/* Prevent horizontal overflow */
+:host {
+  display: block;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Smooth animations */
+:host ::ng-deep * {
+  transition-property: color, background-color, border-color, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Quick Action Cards */
+.quick-action-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: white;
+  border: 2px solid #3b82f6;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.quick-action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+  border-color: #60a5fa;
+}
+
+.quick-action-card .card-icon {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 2px solid currentColor;
+}
+
+.quick-action-card .card-content {
+  flex: 1;
+}
+
+.quick-action-card .card-content h3 {
+  margin: 0 0 0.25rem 0;
+}
+
+.quick-action-card .card-content p {
+  margin: 0;
+}
+
+.quick-action-card .card-arrow {
+  font-size: 2rem;
+  font-weight: bold;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
+}
+
+.quick-action-card:hover .card-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+

@@ -1,0 +1,488 @@
+<div class="modern-landing">
+  <!-- Three.js Canvas Background -->
+  <canvas id="threejs-canvas" class="threejs-background"></canvas>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top premium-navbar">
+    <div class="container-fluid px-5">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <span class="brand-text">ORAXINNO</span>
+      </a>
+      
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto me-4">
+          <li class="nav-item">
+            <a class="nav-link" (click)="scrollToSection('home')">HOME</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" (click)="scrollToSection('courses')">COURSES</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" (click)="scrollToSection('about')">ABOUT</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" (click)="scrollToSection('contact')">CONTACT</a>
+          </li>
+        </ul>
+        
+        <div class="d-flex gap-2">
+          <button (click)="openLoginModal()" class="btn btn-outline-light btn-sm px-4">SIGN IN</button>
+          <button (click)="openRegisterModal()" class="btn btn-premium btn-sm px-4">GET STARTED</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section" id="home">
+    <div class="container">
+      <div class="row align-items-center min-vh-100">
+        <div class="col-lg-6" data-aos="fade-right">
+          <div class="hero-content">
+            <span class="badge bg-gradient-premium mb-3">
+              <i class="bi bi-star-fill me-2"></i>PREMIUM EDUCATION
+            </span>
+            <h1 class="display-1 fw-bold mb-4">
+              Transform Your
+              <span class="text-gradient">Future</span>
+            </h1>
+            <p class="lead text-white-80 mb-5">
+              Master cutting-edge technologies with world-class instructors. 
+              Join 5,000+ learners advancing their careers with OraXinno Academy.
+            </p>
+            <div class="d-flex gap-3 flex-wrap">
+              <button (click)="openRegisterModal()" class="btn btn-premium btn-lg px-5 py-3">
+                <i class="bi bi-rocket-takeoff me-2"></i>Start Learning
+              </button>
+              <button class="btn btn-outline-light btn-lg px-5 py-3" (click)="scrollToSection('courses')">
+                <i class="bi bi-collection me-2"></i>Explore Courses
+              </button>
+            </div>
+            
+            <div class="row mt-5 pt-4">
+              <div class="col-4">
+                <div class="stat-item">
+                  <h3 class="display-6 fw-bold mb-0" style="color: white !important; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);">5K+</h3>
+                  <p class="small text-white-60 mb-0">Active Students</p>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="stat-item">
+                  <h3 class="display-6 fw-bold mb-0" style="color: white !important; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);">50+</h3>
+                  <p class="small text-white-60 mb-0">Expert Courses</p>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="stat-item">
+                  <h3 class="display-6 fw-bold mb-0" style="color: white !important; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);">95%</h3>
+                  <p class="small text-white-60 mb-0">Success Rate</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-6" data-aos="fade-left">
+          <div class="hero-image-container">
+            <div class="floating-card card-1">
+              <i class="bi bi-trophy-fill text-warning display-4"></i>
+              <div class="ms-3">
+                <h4 class="mb-0">5,000+</h4>
+                <p class="small mb-0 text-muted">Success Stories</p>
+              </div>
+            </div>
+            <div class="floating-card card-2">
+              <i class="bi bi-people-fill text-primary display-4"></i>
+              <div class="ms-3">
+                <h4 class="mb-0">200+</h4>
+                <p class="small mb-0 text-muted">Expert Trainers</p>
+              </div>
+            </div>
+            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800" 
+                 alt="Students Learning" 
+                 class="img-fluid rounded-4 shadow-lg hero-image">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="about-section bg-dark-gradient" id="about" style="padding: 6rem 0;">
+    <div class="container" style="max-width: 1400px;">
+      <!-- Header - Full Width -->
+      <div class="row">
+        <div class="col-12 text-center mb-5" data-aos="fade-up">
+          <span class="badge bg-gradient-premium mb-4 px-4 py-2" style="color: white !important; font-weight: 600;">
+            <i class="bi bi-info-circle-fill me-2"></i>ABOUT ORAXINNO
+          </span>
+          <h2 class="display-4 fw-bold mb-4" style="color: white !important;">
+            One Platform. <br><span class="text-gradient-light">Infinite Possibilities</span>
+          </h2>
+          <p class="lead mb-5 mx-auto" style="line-height: 1.8; color: rgba(255, 255, 255, 0.85); font-size: 1.15rem; max-width: 800px;">
+            At OraXinno Academy, we believe quality education should be accessible, 
+            engaging, and empowering—for everyone, everywhere.
+          </p>
+        </div>
+      </div>
+
+      <!-- Content - Two Columns -->
+      <div class="row align-items-center g-5">
+        <!-- Left Column - Image -->
+        <div class="col-lg-6" data-aos="fade-right">
+          <div class="about-image-wrapper" style="position: relative; padding: 1rem;">
+            <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=700" 
+                 alt="About OraXinno" 
+                 class="img-fluid rounded-4 shadow-lg" style="width: 100%;">
+            <div class="about-badge badge-1" style="background: rgba(167, 139, 250, 0.95); backdrop-filter: blur(10px); padding: 1.5rem; border-radius: 16px; position: absolute; top: 8%; left: 5%; display: flex; align-items: center;">
+              <i class="bi bi-people-fill display-5" style="color: white;"></i>
+              <div class="ms-3">
+                <h4 class="mb-0 fw-bold" style="color: white;">5,000+</h4>
+                <p class="small mb-0" style="color: rgba(255, 255, 255, 0.9);">Active Learners</p>
+              </div>
+            </div>
+            <div class="about-badge badge-2" style="background: rgba(167, 139, 250, 0.95); backdrop-filter: blur(10px); padding: 1.5rem; border-radius: 16px; position: absolute; bottom: 8%; right: 5%; display: flex; align-items: center;">
+              <i class="bi bi-book-fill display-5" style="color: white;"></i>
+              <div class="ms-3">
+                <h4 class="mb-0 fw-bold" style="color: white;">50+</h4>
+                <p class="small mb-0" style="color: rgba(255, 255, 255, 0.9);">Courses</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column - Features -->
+        <div class="col-lg-6" data-aos="fade-left">
+          <div style="padding: 0 2rem;">
+            <!-- Features List -->
+            <div class="feature-list">
+              <div class="feature-item d-flex mb-4 pb-4" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                <div class="feature-icon" style="background: rgba(167, 139, 250, 0.2); color: #a78bfa; width: 70px; height: 70px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <i class="bi bi-geo-alt-fill" style="font-size: 1.75rem;"></i>
+                </div>
+                <div class="ms-4">
+                  <h5 class="fw-bold mb-3" style="color: white; font-size: 1.3rem;">Learn from Anywhere</h5>
+                  <p class="mb-0" style="line-height: 1.7; color: rgba(255, 255, 255, 0.75); font-size: 1rem;">
+                    Access your courses anytime, on any device—at home, at work, or on the go.
+                  </p>
+                </div>
+              </div>
+
+              <div class="feature-item d-flex mb-4 pb-4" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                <div class="feature-icon" style="background: rgba(167, 139, 250, 0.2); color: #a78bfa; width: 70px; height: 70px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <i class="bi bi-award-fill" style="font-size: 1.75rem;"></i>
+                </div>
+                <div class="ms-4">
+                  <h5 class="fw-bold mb-3" style="color: white; font-size: 1.3rem;">Industry Expert Trainers</h5>
+                  <p class="mb-0" style="line-height: 1.7; color: rgba(255, 255, 255, 0.75); font-size: 1rem;">
+                    Learn from professionals with real-world experience and industry insights.
+                  </p>
+                </div>
+              </div>
+
+              <div class="feature-item d-flex mb-4">
+                <div class="feature-icon" style="background: rgba(167, 139, 250, 0.2); color: #a78bfa; width: 70px; height: 70px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <i class="bi bi-patch-check-fill" style="font-size: 1.75rem;"></i>
+                </div>
+                <div class="ms-4">
+                  <h5 class="fw-bold mb-3" style="color: white; font-size: 1.3rem;">Earn Real Certificates</h5>
+                  <p class="mb-0" style="line-height: 1.7; color: rgba(255, 255, 255, 0.75); font-size: 1rem;">
+                    Complete courses and receive professional certificates to boost your career.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn btn-premium btn-lg px-5 py-3 mt-4">
+              <i class="bi bi-arrow-right-circle me-2"></i>Learn More About Us
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="categories-section py-6 bg-light-gradient" id="categories">
+    <div class="container">
+      <div class="text-center mb-5" data-aos="fade-up">
+        <span class="badge bg-gradient-premium mb-3 px-4 py-2">
+          <i class="bi bi-grid-3x3-gap-fill me-2"></i>EXPLORE TOPICS
+        </span>
+        <h2 class="display-3 fw-bold mb-4" style="color: white !important;">
+          Top <span class="text-gradient-light">Categories</span>
+        </h2>
+        <p class="lead mx-auto" style="max-width: 700px; color: rgba(255, 255, 255, 0.8);">
+          Choose from industry-relevant topics curated by experts
+        </p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6" *ngFor="let category of categories" data-aos="fade-up">
+          <div class="category-card">
+            <div class="category-icon">
+              <i class="bi {{ category.icon }}"></i>
+            </div>
+            <h4 class="fw-bold mb-2">{{ category.name }}</h4>
+            <p class="mb-3">Master the skills that matter in today's market</p>
+            <a class="btn btn-sm">
+              Explore Courses <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Courses Section -->
+  <section class="courses-section py-6 bg-dark-gradient" id="courses">
+    <div class="container">
+      <div class="text-center mb-5" data-aos="fade-up">
+        <span class="badge bg-gradient-premium mb-3 px-4 py-2">
+          <i class="bi bi-book-fill me-2"></i>FEATURED COURSES
+        </span>
+        <h2 class="display-3 fw-bold mb-4" style="color: white !important;">
+          Start Your <span class="text-gradient-light">Learning Journey</span>
+        </h2>
+        <p class="lead text-white-80 mx-auto" style="max-width: 700px;">
+          Expert-led courses designed to help you grow
+        </p>
+      </div>
+
+      <div class="row mb-5">
+        <div class="col-12">
+          <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <button class="btn btn-outline-light btn-sm px-4 py-2">All Courses</button>
+            <button class="btn btn-outline-light btn-sm px-4 py-2">Oracle</button>
+            <button class="btn btn-outline-light btn-sm px-4 py-2">EPM</button>
+            <button class="btn btn-outline-light btn-sm px-4 py-2">Full Stack</button>
+            <button class="btn btn-outline-light btn-sm px-4 py-2">Cloud</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-5">
+        <div class="col-lg-4 col-md-6" *ngFor="let course of courses" data-aos="fade-up">
+          <div class="course-card">
+            <div class="course-image">
+              <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400" 
+                   alt="{{ course.title }}" 
+                   class="img-fluid">
+              <span class="badge bg-gradient-premium position-absolute top-0 start-0 m-3 px-3 py-2" style="color: white !important; font-weight: 600;">
+                <i class="bi bi-tag-fill me-1"></i>{{ course.category }}
+              </span>
+              <span class="badge bg-white position-absolute top-0 end-0 m-3 px-3 py-2" style="color: #1f2937 !important; font-weight: 600;">
+                <i class="bi bi-signal me-1"></i>{{ course.level }}
+              </span>
+            </div>
+            <div class="course-content">
+              <h5 class="fw-bold mb-3">{{ course.title }}</h5>
+              <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-2">
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-person-circle me-2" style="color: #667eea; font-size: 1.1rem;"></i>
+                  <small style="color: #4b5563; font-weight: 500;">{{ course.instructor }}</small>
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-star-fill text-warning me-1" style="font-size: 0.9rem;"></i>
+                  <small class="fw-bold" style="color: #1f2937;">{{ course.rating }}</small>
+                </div>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <small style="color: #6b7280; font-weight: 500;">
+                  <i class="bi bi-people-fill me-1"></i>
+                  {{ course.students }} students
+                </small>
+                <a routerLink="/login" class="btn btn-sm btn-premium px-4 py-2">
+                  Enroll Now <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-5 pt-4">
+        <button class="btn btn-premium btn-lg px-5 py-3">
+          <i class="bi bi-collection me-2"></i>View All Courses
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats-section py-5 bg-dark-gradient">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-3 col-sm-6" *ngFor="let stat of stats" data-aos="fade-up">
+          <div class="stat-card text-center">
+            <div class="stat-icon mb-3">
+              <i class="bi {{ stat.icon }}"></i>
+            </div>
+            <h3 class="fw-bold mb-2">{{ stat.value }}</h3>
+            <p class="mb-0">{{ stat.label }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Instructors Section -->
+  <section class="instructors-section py-6 bg-dark-gradient" id="instructors">
+    <div class="container-fluid px-5">
+      <div class="text-center mb-5" data-aos="fade-up">
+        <span class="badge bg-gradient-premium mb-4 px-4 py-2">
+          <i class="bi bi-person-badge-fill me-2"></i>MEET OUR TEAM
+        </span>
+        <h2 class="display-4 fw-bold mb-4" style="color: #ffffff !important;">
+          Your <span class="text-gradient-light">Learning Guides</span>
+        </h2>
+        <p class="lead text-white-80 mx-auto" style="max-width: 700px;">
+          Learn from industry experts with years of real-world experience
+        </p>
+      </div>
+
+      <div class="row g-4 justify-content-center">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12" *ngFor="let instructor of instructors" data-aos="fade-up">
+          <div class="instructor-card">
+            <div class="instructor-image">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" 
+                   alt="{{ instructor.name }}" 
+                   class="img-fluid">
+              <div class="instructor-social">
+                <a href="#" class="social-link"><i class="bi bi-linkedin"></i></a>
+                <a href="#" class="social-link"><i class="bi bi-twitter"></i></a>
+                <a href="#" class="social-link"><i class="bi bi-envelope-fill"></i></a>
+              </div>
+            </div>
+            <div class="instructor-content">
+              <h5 class="fw-bold mb-2" style="color: #ffffff !important;">{{ instructor.name }}</h5>
+              <p class="small mb-4" style="color: rgba(255, 255, 255, 0.8) !important; font-weight: 500;">{{ instructor.role }}</p>
+              <div class="row g-3">
+                <div class="col-6">
+                  <div class="text-center">
+                    <h6 class="fw-bold mb-0" style="color: #a78bfa !important;">{{ instructor.students }}+</h6>
+                    <small class="d-block mt-1" style="color: rgba(255, 255, 255, 0.7) !important; font-weight: 500;">Students</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="text-center">
+                    <h6 class="fw-bold mb-0" style="color: #a78bfa !important;">{{ instructor.courses }}</h6>
+                    <small class="d-block mt-1" style="color: rgba(255, 255, 255, 0.7) !important; font-weight: 500;">Courses</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section bg-gradient-premium" id="contact" style="padding: 6rem 0;">
+    <div class="container" style="margin-top: 4rem; margin-bottom: 4rem;">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center" data-aos="zoom-in">
+          <span class="badge bg-white text-primary mb-4 px-4 py-2" style="font-weight: 600;">
+            <i class="bi bi-stars me-2"></i>START YOUR JOURNEY
+          </span>
+          <h2 class="display-3 fw-bold text-white mb-4">
+            Ready to Transform Your Career?
+          </h2>
+          <p class="lead text-white mb-5" style="line-height: 1.8; opacity: 0.95;">
+            Join thousands of students already learning on OraXinno Academy
+          </p>
+          <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <button (click)="openRegisterModal()" class="btn btn-light btn-lg px-5 py-3">
+              <i class="bi bi-rocket-takeoff me-2"></i>Get Started Free
+            </button>
+            <button class="btn btn-outline-light btn-lg px-5 py-3" (click)="scrollToSection('courses')">
+              <i class="bi bi-collection me-2"></i>Browse Courses
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" style="padding: 5rem 0 3rem 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container" style="margin-top: 2rem;">
+      <div class="row g-4 mb-5">
+        <div class="col-lg-4">
+          <div class="d-flex align-items-center mb-4">
+            <img src="http://oraxinno.com/img/logo_oraXinno.png" alt="OraXinno" height="35" class="me-3">
+            <h4 class="text-white mb-0" style="font-weight: 700;">OraXinno Academy</h4>
+          </div>
+          <p class="mb-4" style="color: rgba(255, 255, 255, 0.7); line-height: 1.7; font-size: 0.95rem;">
+            Empowering learners worldwide through flexible, expert-led online courses.
+          </p>
+          <div class="d-flex gap-3">
+            <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
+            <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
+            <a href="#" class="social-icon"><i class="bi bi-twitter"></i></a>
+            <a href="#" class="social-icon"><i class="bi bi-youtube"></i></a>
+          </div>
+        </div>
+        
+        <div class="col-lg-2 col-md-6">
+          <h5 class="text-white mb-4" style="font-weight: 700; font-size: 1.1rem;">Quick Links</h5>
+          <ul class="list-unstyled footer-links">
+            <li class="mb-3"><a href="#" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: all 0.3s;">About Us</a></li>
+            <li class="mb-3"><a href="#" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: all 0.3s;">Become Instructor</a></li>
+            <li class="mb-3"><a href="#" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: all 0.3s;">Pricing</a></li>
+            <li class="mb-3"><a href="#" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: all 0.3s;">Contact</a></li>
+          </ul>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+          <h5 class="text-white mb-4" style="font-weight: 700; font-size: 1.1rem;">Top Categories</h5>
+          <ul class="list-unstyled footer-links">
+            <li class="mb-3"><a href="#" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: all 0.3s;">Oracle Database</a></li>
+            <li class="mb-3"><a href="#" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: all 0.3s;">EPM Solutions</a></li>
+            <li class="mb-3"><a href="#" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: all 0.3s;">Full Stack Dev</a></li>
+            <li class="mb-3"><a href="#" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: all 0.3s;">Cloud Computing</a></li>
+          </ul>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+          <h5 class="text-white mb-4" style="font-weight: 700; font-size: 1.1rem;">Contact Info</h5>
+          <ul class="list-unstyled footer-contact">
+            <li class="mb-3">
+              <i class="bi bi-envelope-fill me-2" style="color: #a78bfa;"></i>
+              <a href="mailto:info@oraxinno.com" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">info&#64;oraxinno.com</a>
+            </li>
+            <li class="mb-3">
+              <i class="bi bi-telephone-fill me-2" style="color: #a78bfa;"></i>
+              <a href="tel:+911234567890" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">+91 123 456 7890</a>
+            </li>
+            <li>
+              <i class="bi bi-geo-alt-fill me-2" style="color: #a78bfa;"></i>
+              <span style="color: rgba(255, 255, 255, 0.7);">Mumbai, India</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <hr class="my-5" style="border-color: rgba(255, 255, 255, 0.2); opacity: 1;">
+      
+      <div class="row">
+        <div class="col-md-6">
+          <p class="mb-0" style="color: rgba(255, 255, 255, 0.6); font-size: 0.95rem;">&copy; 2026 OraXinno Academy. All rights reserved.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <a href="#" class="me-4" style="color: rgba(255, 255, 255, 0.6); text-decoration: none; font-size: 0.95rem;">Privacy Policy</a>
+          <a href="#" style="color: rgba(255, 255, 255, 0.6); text-decoration: none; font-size: 0.95rem;">Terms & Conditions</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modals -->
+  <app-login *ngIf="(currentModal$ | async) === 'login'"></app-login>
+  <app-register *ngIf="(currentModal$ | async) === 'register'"></app-register>
+</div>

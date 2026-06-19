@@ -1,0 +1,395 @@
+<div class="create-assessment-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>📋 Create New Assessment</h1>
+      <p>Multi-step form to create comprehensive assessments</p>
+    </div>
+    <button class="btn btn-secondary" (click)="cancel()">
+      ✗ Cancel
+    </button>
+  </div>
+
+  <!-- Progress Steps -->
+  <div class="progress-steps">
+    <div class="step" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
+      <div class="step-number">1</div>
+      <div class="step-label">Basic Details</div>
+    </div>
+    <div class="step-connector" [class.completed]="currentStep > 1"></div>
+    <div class="step" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">
+      <div class="step-number">2</div>
+      <div class="step-label">Select Questions</div>
+    </div>
+    <div class="step-connector" [class.completed]="currentStep > 2"></div>
+    <div class="step" [class.active]="currentStep >= 3">
+      <div class="step-number">3</div>
+      <div class="step-label">Review & Create</div>
+    </div>
+  </div>
+
+  <!-- Alert Messages -->
+  <div class="alert alert-success" *ngIf="success">
+    ✅ {{ success }}
+  </div>
+  <div class="alert alert-error" *ngIf="error">
+    ❌ {{ error }}
+  </div>
+
+  <!-- Step 1: Basic Details -->
+  <div class="step-content" *ngIf="currentStep === 1">
+    <div class="content-card">
+      <h2>📝 Assessment Basic Details</h2>
+      <form [formGroup]="basicDetailsForm">
+        <div class="form-group">
+          <label>Assessment Title <span class="required">*</span></label>
+          <input 
+            type="text" 
+            formControlName="title"
+            class="form-control"
+            [class.error]="basicDetailsForm.get('title')?.invalid && basicDetailsForm.get('title')?.touched"
+            placeholder="e.g., JavaScript Fundamentals Assessment"
+          />
+          <div class="form-error" *ngIf="basicDetailsForm.get('title')?.invalid && basicDetailsForm.get('title')?.touched">
+            Title must be at least 5 characters long
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Instructions <span class="required">*</span></label>
+          <textarea 
+            formControlName="instructions"
+            rows="4"
+            class="form-control"
+            [class.error]="basicDetailsForm.get('instructions')?.invalid && basicDetailsForm.get('instructions')?.touched"
+            placeholder="Write clear instructions for students..."
+          ></textarea>
+          <div class="form-error" *ngIf="basicDetailsForm.get('instructions')?.invalid && basicDetailsForm.get('instructions')?.touched">
+            Instructions must be at least 20 characters long
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Time Limit (minutes) <span class="required">*</span></label>
+            <input 
+              type="number" 
+              formControlName="timeLimit"
+              min="5"
+              max="180"
+              class="form-control"
+              [class.error]="basicDetailsForm.get('timeLimit')?.invalid && basicDetailsForm.get('timeLimit')?.touched"
+            />
+            <small class="form-hint">Between 5 and 180 minutes</small>
+            <div class="form-error" *ngIf="basicDetailsForm.get('timeLimit')?.invalid && basicDetailsForm.get('timeLimit')?.touched">
+              Time limit must be between 5 and 180 minutes
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Passing Marks (%) <span class="required">*</span></label>
+            <input 
+              type="number" 
+              formControlName="passingMarks"
+              min="1"
+              max="100"
+              class="form-control"
+              [class.error]="basicDetailsForm.get('passingMarks')?.invalid && basicDetailsForm.get('passingMarks')?.touched"
+            />
+            <small class="form-hint">Minimum percentage to pass</small>
+            <div class="form-error" *ngIf="basicDetailsForm.get('passingMarks')?.invalid && basicDetailsForm.get('passingMarks')?.touched">
+              Passing marks must be between 1 and 100
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Course/Subject <span class="required">*</span></label>
+            <select 
+              formControlName="courseLevel"
+              class="form-control"
+              [class.error]="basicDetailsForm.get('courseLevel')?.invalid && basicDetailsForm.get('courseLevel')?.touched"
+            >
+              <option value="">Select Course Type</option>
+              <option value="FULL_STACK">Full Stack Development</option>
+              <option value="CRT">CRT (Cloud Readiness Training)</option>
+              <option value="ORACLE">Oracle Technologies</option>
+              <option value="EPM">EPM (Enterprise Performance Management)</option>
+              <option value="OIC">OIC (Oracle Integration Cloud)</option>
+            </select>
+            <div class="form-error" *ngIf="basicDetailsForm.get('courseLevel')?.invalid && basicDetailsForm.get('courseLevel')?.touched">
+              Course/Subject is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Batch Name <span class="required">*</span></label>
+            <input 
+              type="text" 
+              formControlName="batchName"
+              class="form-control"
+              [class.error]="basicDetailsForm.get('batchName')?.invalid && basicDetailsForm.get('batchName')?.touched"
+              placeholder="e.g., Batch 2024-A"
+            />
+            <div class="form-error" *ngIf="basicDetailsForm.get('batchName')?.invalid && basicDetailsForm.get('batchName')?.touched">
+              Batch name is required
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Access PIN (Optional) 🔐</label>
+          <input 
+            type="text" 
+            formControlName="accessPin"
+            maxlength="4"
+            class="form-control"
+            [class.error]="basicDetailsForm.get('accessPin')?.invalid && basicDetailsForm.get('accessPin')?.touched"
+            placeholder="Enter 4-digit PIN (e.g., 1234)"
+          />
+          <small class="form-hint">Students will need this PIN to start the assessment. Leave empty for no PIN.</small>
+          <div class="form-error" *ngIf="basicDetailsForm.get('accessPin')?.invalid && basicDetailsForm.get('accessPin')?.touched">
+            PIN must be exactly 4 digits
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="showResults" />
+            <span>Show results immediately after submission</span>
+          </label>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Step 2: Select Questions -->
+  <div class="step-content" *ngIf="currentStep === 2">
+    <div class="content-card">
+      <div class="selection-header">
+        <h2>📚 Select Questions</h2>
+        <button class="btn btn-secondary" (click)="goToQuestions()">
+          ➕ Create New Question
+        </button>
+      </div>
+
+      <!-- Selected Questions Summary -->
+      <div class="selected-summary" *ngIf="selectedQuestions.length > 0">
+        <div class="summary-item">
+          <strong>Selected:</strong> {{ selectedQuestions.length }} questions
+        </div>
+        <div class="summary-item">
+          <strong>MCQ:</strong> {{ mcqCount }}
+        </div>
+        <div class="summary-item">
+          <strong>Descriptive:</strong> {{ descriptiveCount }}
+        </div>
+        <div class="summary-item">
+          <strong>Total Marks:</strong> {{ totalMarks }}
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-section">
+        <div class="filter-group">
+          <label>🔍 Search:</label>
+          <input 
+            type="text" 
+            class="filter-input"
+            placeholder="Search questions..."
+            [(ngModel)]="searchQuery"
+          />
+        </div>
+        
+        <div class="filter-group">
+          <label>📑 Type:</label>
+          <select class="filter-select" [(ngModel)]="filterType">
+            <option value="ALL">All Types</option>
+            <option value="MCQ">MCQ</option>
+            <option value="DESCRIPTIVE">Descriptive</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>⚡ Difficulty:</label>
+          <select class="filter-select" [(ngModel)]="filterDifficulty">
+            <option value="">All Levels</option>
+            <option value="EASY">Easy</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HARD">Hard</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-screen" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <p>Loading questions...</p>
+      </div>
+
+      <!-- Available Questions List -->
+      <div class="questions-list" *ngIf="!isLoading">
+        <div 
+          *ngFor="let question of filteredQuestions" 
+          class="question-item"
+          [class.selected]="question.selected"
+          (click)="toggleQuestion(question)"
+        >
+          <div class="question-checkbox">
+            <input 
+              type="checkbox" 
+              [checked]="question.selected"
+              (click)="$event.stopPropagation()"
+            />
+          </div>
+          <div class="question-content">
+            <div class="question-text">{{ question.questionText }}</div>
+            <div class="question-tags">
+              <span class="tag" [ngClass]="question.type === 'MCQ' ? 'tag-mcq' : 'tag-descriptive'">
+                {{ question.type }}
+              </span>
+              <span class="tag tag-difficulty">{{ question.difficulty }}</span>
+              <span class="tag">{{ question.marks }} marks</span>
+              <span class="tag">{{ question.courseLevel }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="filteredQuestions.length === 0" class="no-questions">
+          <p>No questions found matching your filters.</p>
+          <button class="btn btn-primary" (click)="goToQuestions()">
+            Create Questions First
+          </button>
+        </div>
+      </div>
+
+      <!-- Selected Questions Panel -->
+      <div class="selected-panel" *ngIf="selectedQuestions.length > 0">
+        <h3>📋 Selected Questions ({{ selectedQuestions.length }})</h3>
+        <div class="selected-list">
+          <div *ngFor="let question of selectedQuestions; let i = index" class="selected-item">
+            <div class="item-number">{{ i + 1 }}</div>
+            <div class="item-content">
+              <div class="item-text">{{ question.questionText }}</div>
+              <div class="item-meta">
+                <span class="badge">{{ question.type }}</span>
+                <span class="badge">{{ question.marks }} marks</span>
+              </div>
+            </div>
+            <button class="btn-remove" (click)="removeQuestion(question)">✗</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Review & Create -->
+  <div class="step-content" *ngIf="currentStep === 3">
+    <div class="content-card">
+      <h2>✅ Review & Confirm</h2>
+      
+      <div class="review-section">
+        <h3>📝 Assessment Details</h3>
+        <div class="review-grid">
+          <div class="review-item">
+            <label>Title:</label>
+            <div>{{ basicDetailsForm.get('title')?.value }}</div>
+          </div>
+          <div class="review-item">
+            <label>Course:</label>
+            <div>{{ basicDetailsForm.get('courseLevel')?.value }}</div>
+          </div>
+          <div class="review-item">
+            <label>Batch:</label>
+            <div>{{ basicDetailsForm.get('batchName')?.value }}</div>
+          </div>
+          <div class="review-item">
+            <label>Time Limit:</label>
+            <div>{{ basicDetailsForm.get('timeLimit')?.value }} minutes</div>
+          </div>
+          <div class="review-item">
+            <label>Passing Marks:</label>
+            <div>{{ basicDetailsForm.get('passingMarks')?.value }}%</div>
+          </div>
+          <div class="review-item">
+            <label>Show Results:</label>
+            <div>{{ basicDetailsForm.get('showResults')?.value ? 'Yes' : 'No' }}</div>
+          </div>
+        </div>
+
+        <div class="review-item full-width">
+          <label>Instructions:</label>
+          <div class="instructions-preview">{{ basicDetailsForm.get('instructions')?.value }}</div>
+        </div>
+      </div>
+
+      <div class="review-section">
+        <h3>📚 Questions Summary</h3>
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-value">{{ selectedQuestions.length }}</div>
+            <div class="stat-label">Total Questions</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value">{{ mcqCount }}</div>
+            <div class="stat-label">MCQ</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value">{{ descriptiveCount }}</div>
+            <div class="stat-label">Descriptive</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value">{{ totalMarks }}</div>
+            <div class="stat-label">Total Marks</div>
+          </div>
+        </div>
+
+        <div class="questions-preview">
+          <div *ngFor="let question of selectedQuestions; let i = index" class="preview-item">
+            <strong>Q{{ i + 1 }}.</strong> {{ question.questionText }}
+            <span class="preview-marks">[{{ question.marks }} marks]</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <strong>⚠️ Important:</strong>
+        <p>Once created, the assessment will be available to students in the selected batch. Make sure all details are correct before proceeding.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Buttons -->
+  <div class="navigation-buttons">
+    <button 
+      class="btn btn-secondary"
+      *ngIf="currentStep > 1"
+      (click)="previousStep()"
+      [disabled]="isLoading"
+    >
+      ← Previous
+    </button>
+    
+    <div class="spacer"></div>
+    
+    <button 
+      class="btn btn-primary"
+      *ngIf="currentStep < totalSteps"
+      (click)="nextStep()"
+      [disabled]="isLoading"
+    >
+      Next →
+    </button>
+    
+    <button 
+      class="btn btn-success"
+      *ngIf="currentStep === totalSteps"
+      (click)="createAssessment()"
+      [disabled]="isLoading"
+    >
+      <span *ngIf="isLoading">Creating...</span>
+      <span *ngIf="!isLoading">🚀 Create Assessment</span>
+    </button>
+  </div>
+</div>

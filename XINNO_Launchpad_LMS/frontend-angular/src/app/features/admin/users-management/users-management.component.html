@@ -1,0 +1,363 @@
+<div class="users-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>👥 Users Management</h1>
+      <p>Manage students and trainers</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="exportToExcel()" [disabled]="isLoading">
+        📥 Export to Excel
+      </button>
+      <button *ngIf="isAdmin" class="btn btn-success" (click)="openCreateModal()">
+        ➕ Create Trainer
+      </button>
+      <a routerLink="/admin" class="btn btn-secondary">
+        ← Back to Admin Panel
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">👨‍🎓</div>
+      <div class="stat-info">
+        <h3>{{ studentCount }}</h3>
+        <p>Students</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">👨‍🏫</div>
+      <div class="stat-info">
+        <h3>{{ trainerCount }}</h3>
+        <p>Trainers</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-info">
+        <h3>{{ users.length }}</h3>
+        <p>Total Users</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Messages -->
+  <div class="alert alert-success" *ngIf="success && !showCreateModal">
+    ✅ {{ success }}
+  </div>
+  <div class="alert alert-error" *ngIf="error && !showCreateModal">
+    ❌ {{ error }}
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label>Role:</label>
+      <select [(ngModel)]="selectedRole" (change)="onFilterChange()" class="filter-select">
+        <option value="ALL">All Roles</option>
+        <option value="STUDENT">Students</option>
+        <option value="TRAINER">Trainers</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Batch:</label>
+      <select [(ngModel)]="selectedBatch" (change)="onFilterChange()" class="filter-select">
+        <option value="ALL">All Batches</option>
+        <option *ngFor="let batch of uniqueBatches" [value]="batch">{{ batch }}</option>
+      </select>
+    </div>
+
+    <div class="filter-group flex-grow">
+      <label>Search:</label>
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (input)="onFilterChange()"
+        placeholder="Search by name or email..."
+        class="search-input"
+      />
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-screen" *ngIf="isLoading && !showCreateModal">
+    <div class="spinner"></div>
+    <p>Loading users...</p>
+  </div>
+
+  <!-- Users Table -->
+  <div class="table-responsive" *ngIf="!isLoading">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Batch</th>
+          <th>Course</th>
+          <th>Status</th>
+          <th>Activity</th>
+          <th>Joined</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers; let i = index">
+          <td data-label="#">{{ i + 1 }}</td>
+          <td data-label="Name">
+            <strong>{{ user.name }}</strong>
+          </td>
+          <td data-label="Email">{{ user.email }}</td>
+          <td data-label="Role">
+            <span class="role-badge" [ngClass]="getRoleBadgeClass(user.role)">
+              {{ user.role }}
+            </span>
+          </td>
+          <td data-label="Batch">{{ user.batchName || 'N/A' }}</td>
+          <td data-label="Course">
+            <div class="course-info">
+              <span *ngIf="user.courseType">{{ user.courseType }}</span>
+              <span *ngIf="user.courseLevel" class="text-muted">{{ user.courseLevel }}</span>
+            </div>
+          </td>
+          <td data-label="Status">
+            <span class="status-badge" [ngClass]="user.isActive ? 'status-active' : 'status-inactive'">
+              {{ user.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td data-label="Activity" class="text-sm">
+            {{ getUserStats(user) }}
+          </td>
+          <td data-label="Joined">{{ formatDate(user.createdAt) }}</td>
+          <td data-label="Actions">
+            <div class="action-buttons">
+              <!-- Toggle Feedback Permission (Admin Only, Trainers Only) -->
+              <button 
+                *ngIf="isAdmin && user.role === 'TRAINER'"
+                class="btn btn-sm"
+                [ngClass]="user.canGiveFeedback ? 'btn-warning' : 'btn-success'"
+                (click)="toggleFeedbackPermission(user)"
+                [title]="user.canGiveFeedback ? 'Disable feedback permission' : 'Enable feedback permission'"
+              >
+                {{ user.canGiveFeedback ? '🔒 Disable' : '🔓 Enable' }} Feedback
+              </button>
+              
+              <!-- Give Feedback Button -->
+              <button 
+                *ngIf="user.role === 'STUDENT' || user.role === 'TRAINER'"
+                class="btn btn-sm btn-primary" 
+                (click)="openFeedbackModal(user)"
+                title="Give Feedback"
+              >
+                💬 Feedback
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredUsers.length === 0">
+          <td colspan="10" class="no-data">
+            <span class="no-data-icon">👤</span>
+            <p>No users found</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Create Trainer Modal -->
+<div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>➕ Create New Trainer</h2>
+      <button class="close-btn" (click)="closeCreateModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Alert in Modal -->
+      <div class="alert alert-success" *ngIf="success">
+        ✅ {{ success }}
+      </div>
+      <div class="alert alert-error" *ngIf="error">
+        ❌ {{ error }}
+      </div>
+
+      <form (ngSubmit)="createTrainer()">
+        <div class="form-group">
+          <label>Name <span class="required">*</span></label>
+          <input 
+            type="text" 
+            [(ngModel)]="newTrainer.name" 
+            name="name"
+            placeholder="Enter trainer name"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Email <span class="required">*</span></label>
+          <input 
+            type="email" 
+            [(ngModel)]="newTrainer.email" 
+            name="email"
+            placeholder="Enter email address"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Password <span class="required">*</span></label>
+          <input 
+            type="password" 
+            [(ngModel)]="newTrainer.password" 
+            name="password"
+            placeholder="Enter password (min 6 characters)"
+            required
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Course Type</label>
+            <select [(ngModel)]="newTrainer.courseType" name="courseType">
+              <option value="">Select Course Type</option>
+              <option value="CRT">CRT</option>
+              <option value="ORACLE">Oracle</option>
+              <option value="EPM">EPM</option>
+              <option value="OIC">OIC</option>
+              <option value="FULL_STACK">Full Stack</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Course Level</label>
+            <select [(ngModel)]="newTrainer.courseLevel" name="courseLevel">
+              <option value="">Select Course Level</option>
+              <option value="BEGINNER">Beginner</option>
+              <option value="INTERMEDIATE">Intermediate</option>
+              <option value="ADVANCED">Advanced</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button 
+            type="button" 
+            class="btn btn-secondary" 
+            (click)="closeCreateModal()"
+            [disabled]="isLoading"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-success"
+            [disabled]="isLoading"
+          >
+            {{ isLoading ? 'Creating...' : 'Create Trainer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Direct Feedback Modal -->
+<div class="modal-overlay" *ngIf="showFeedbackModal" (click)="closeFeedbackModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>💬 Give Feedback to {{ selectedUser?.name }}</h2>
+      <button class="close-btn" (click)="closeFeedbackModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Alert in Modal -->
+      <div class="alert alert-success" *ngIf="success">
+        ✅ {{ success }}
+      </div>
+      <div class="alert alert-error" *ngIf="error">
+        ❌ {{ error }}
+      </div>
+
+      <form (ngSubmit)="submitFeedback()">
+        <div class="form-group">
+          <label>Student</label>
+          <input 
+            type="text" 
+            [value]="selectedUser?.name + ' (' + selectedUser?.email + ')'" 
+            disabled
+            class="disabled-input"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Marks (Optional)</label>
+            <input 
+              type="number" 
+              [(ngModel)]="feedbackData.marks" 
+              name="marks"
+              placeholder="Enter marks"
+              min="0"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Max Marks (Optional)</label>
+            <input 
+              type="number" 
+              [(ngModel)]="feedbackData.maxMarks" 
+              name="maxMarks"
+              placeholder="Enter max marks"
+              min="0"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Category</label>
+          <select [(ngModel)]="feedbackData.category" name="category">
+            <option value="GENERAL">General</option>
+            <option value="TECHNICAL">Technical</option>
+            <option value="BEHAVIOR">Behavior</option>
+            <option value="PERFORMANCE">Performance</option>
+            <option value="IMPROVEMENT">Improvement</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Comments <span class="required">*</span></label>
+          <textarea 
+            [(ngModel)]="feedbackData.comments" 
+            name="comments"
+            placeholder="Enter your feedback comments..."
+            rows="6"
+            required
+          ></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button 
+            type="button" 
+            class="btn btn-secondary" 
+            (click)="closeFeedbackModal()"
+            [disabled]="isLoading"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-success"
+            [disabled]="isLoading"
+          >
+            {{ isLoading ? 'Submitting...' : 'Submit Feedback' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

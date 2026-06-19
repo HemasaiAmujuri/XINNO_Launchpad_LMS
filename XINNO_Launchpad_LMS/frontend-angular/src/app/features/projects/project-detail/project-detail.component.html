@@ -1,0 +1,331 @@
+<div class="project-detail-container">
+  <!-- Header -->
+  <div class="page-header">
+    <button class="btn btn-secondary" (click)="goBack()">
+      ← Back to Projects
+    </button>
+  </div>
+
+  <!-- Alert Messages -->
+  <div class="alert alert-success" *ngIf="success && !showUpdateModal">
+    ✅ {{ success }}
+  </div>
+  <div class="alert alert-error" *ngIf="error && !showUpdateModal">
+    ❌ {{ error }}
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-screen" *ngIf="isLoading && !project">
+    <div class="spinner"></div>
+    <p>Loading project details...</p>
+  </div>
+
+  <!-- Project Details -->
+  <div class="project-content" *ngIf="project">
+    <!-- Project Info Card -->
+    <div class="info-card">
+      <div class="card-header-section">
+        <div class="title-section">
+          <h1>{{ project.title }}</h1>
+          <p class="description">{{ project.description }}</p>
+        </div>
+        <div class="completion-circle" [style.background]="getProgressColor(project.completionPercent)">
+          <div class="percent">{{ project.completionPercent }}%</div>
+          <div class="label">Complete</div>
+        </div>
+      </div>
+      
+      <div class="info-grid">
+        <div class="info-item">
+          <label>👤 Student:</label>
+          <div>{{ project.student.name }}</div>
+        </div>
+        <div class="info-item">
+          <label>👨‍🏫 Mentor:</label>
+          <div>{{ project.mentor.name }}</div>
+        </div>
+        <div class="info-item">
+          <label>📚 Course:</label>
+          <div>{{ project.courseType }}</div>
+        </div>
+        <div class="info-item">
+          <label>📅 Duration:</label>
+          <div>{{ formatDate(project.startDate) }} - {{ formatDate(project.endDate) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents Section -->
+    <div class="documents-section">
+      <div class="section-header">
+        <h2>📁 Project Documents</h2>
+        <button class="btn btn-primary" (click)="openUploadModal()" *ngIf="userRole === 'STUDENT'">
+          📤 Upload Document
+        </button>
+      </div>
+
+      <div class="documents-grid" *ngIf="project.documents && project.documents.length > 0">
+        <div class="document-card" *ngFor="let doc of project.documents">
+          <div class="doc-icon">{{ getFileIcon(doc.fileUrl) }}</div>
+          <div class="doc-info">
+            <h4>{{ doc.title }}</h4>
+            <div class="doc-meta">
+              <span class="doc-type">{{ doc.fileType }}</span>
+              <span class="doc-date">{{ formatDate(doc.createdAt) }}</span>
+            </div>
+            <div class="doc-stage" *ngIf="doc.stage">
+              Stage: {{ getStageInfo(doc.stage)?.label }}
+            </div>
+          </div>
+          <div class="doc-actions">
+            <a [href]="'http://localhost:3001' + doc.fileUrl" target="_blank" class="btn btn-sm btn-secondary">
+              👁️ View
+            </a>
+            <button 
+              class="btn btn-sm btn-danger" 
+              (click)="deleteDocument(doc.id)"
+              *ngIf="userRole === 'STUDENT'"
+            >
+              🗑️
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="!project.documents || project.documents.length === 0">
+        <div class="empty-icon">📁</div>
+        <p>No documents uploaded yet</p>
+        <button class="btn btn-primary" (click)="openUploadModal()" *ngIf="userRole === 'STUDENT'">
+          Upload First Document
+        </button>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline-section">
+      <h2>📊 Project Timeline</h2>
+      
+      <div class="timeline">
+        <div 
+          *ngFor="let stage of stages; let i = index" 
+          class="timeline-item"
+          [class.completed]="getStageStatus(stage.key) === 'COMPLETED'"
+          [class.active]="isStageActive(stage.key)"
+          [class.in-progress]="getStageStatus(stage.key) === 'IN_PROGRESS'"
+        >
+          <div class="timeline-marker">
+            <div class="marker-icon">{{ stage.icon }}</div>
+          </div>
+          
+          <div class="timeline-content">
+            <div class="stage-header">
+              <div class="stage-title">
+                <h3>{{ stage.label }}</h3>
+                <p>{{ stage.description }}</p>
+              </div>
+              <div class="stage-actions">
+                <span class="status-badge" [ngClass]="{
+                  'status-pending': getStageStatus(stage.key) === 'PENDING',
+                  'status-progress': getStageStatus(stage.key) === 'IN_PROGRESS',
+                  'status-completed': getStageStatus(stage.key) === 'COMPLETED'
+                }">
+                  {{ getStageStatus(stage.key) }}
+                </span>
+                <button 
+                  class="btn btn-primary btn-sm"
+                  *ngIf="userRole === 'STUDENT' && (isStageActive(stage.key) || getStageStatus(stage.key) === 'IN_PROGRESS')"
+                  (click)="openUpdateModal(stage.key)"
+                >
+                  Update
+                </button>
+              </div>
+            </div>
+            
+            <!-- Stage Details -->
+            <div class="stage-details" *ngIf="getStageProgress(stage.key) as progress">
+              <div class="details-grid">
+                <div class="detail-item" *ngIf="progress.startDate">
+                  <label>Started:</label>
+                  <div>{{ formatDate(progress.startDate) }}</div>
+                </div>
+                <div class="detail-item" *ngIf="progress.completionDate">
+                  <label>Completed:</label>
+                  <div>{{ formatDate(progress.completionDate) }}</div>
+                </div>
+                <div class="detail-item" *ngIf="progress.isApproved">
+                  <label>Approved:</label>
+                  <div class="approved-badge">✓ Approved</div>
+                </div>
+              </div>
+              
+              <div class="notes-section" *ngIf="progress.studentNotes">
+                <label>📝 Student Notes:</label>
+                <div class="notes-content">{{ progress.studentNotes }}</div>
+              </div>
+              
+              <div class="notes-section" *ngIf="progress.mentorRemarks">
+                <label>💬 Mentor Remarks:</label>
+                <div class="notes-content">{{ progress.mentorRemarks }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Update Modal -->
+  <div class="modal-overlay" *ngIf="showUpdateModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>🔄 Update Stage</h2>
+        <button class="close-btn" (click)="closeModal()">×</button>
+      </div>
+
+      <form [formGroup]="updateForm" (ngSubmit)="updateStage()">
+        <div class="modal-body">
+          <!-- Alert in Modal -->
+          <div class="alert alert-success" *ngIf="success">
+            ✅ {{ success }}
+          </div>
+          <div class="alert alert-error" *ngIf="error">
+            ❌ {{ error }}
+          </div>
+
+          <div *ngIf="selectedStage" class="stage-info-modal">
+            <h3>{{ getStageInfo(selectedStage.stage)?.label }}</h3>
+            <p>{{ getStageInfo(selectedStage.stage)?.description }}</p>
+          </div>
+
+          <div class="form-group">
+            <label>Status <span class="required">*</span></label>
+            <select formControlName="status" class="form-control">
+              <option value="PENDING">Pending</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="COMPLETED">Completed</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Your Notes <span class="required">*</span></label>
+            <textarea 
+              formControlName="studentNotes"
+              rows="4"
+              class="form-control"
+              placeholder="Describe your progress, challenges faced, learnings..."
+            ></textarea>
+            <div class="form-error" *ngIf="updateForm.get('studentNotes')?.invalid && updateForm.get('studentNotes')?.touched">
+              Notes must be at least 10 characters long
+            </div>
+          </div>
+
+          <div class="form-group" *ngIf="userRole !== 'STUDENT'">
+            <label>Mentor Remarks</label>
+            <textarea 
+              formControlName="mentorRemarks"
+              rows="3"
+              class="form-control"
+              placeholder="Provide feedback and guidance..."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()" [disabled]="isLoading">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading || updateForm.invalid">
+            <span *ngIf="isLoading">Updating...</span>
+            <span *ngIf="!isLoading">💾 Save Update</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Upload Modal -->
+  <div class="modal-overlay" *ngIf="showUploadModal" (click)="closeUploadModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>📤 Upload Document</h2>
+        <button class="close-btn" (click)="closeUploadModal()">×</button>
+      </div>
+
+      <form [formGroup]="uploadForm" (ngSubmit)="uploadDocument()">
+        <div class="modal-body">
+          <!-- Alert in Modal -->
+          <div class="alert alert-success" *ngIf="success">
+            ✅ {{ success }}
+          </div>
+          <div class="alert alert-error" *ngIf="error">
+            ❌ {{ error }}
+          </div>
+
+          <!-- File Upload Area -->
+          <div class="form-group">
+            <label>Select File <span class="required">*</span></label>
+            <div class="file-upload-area">
+              <input 
+                type="file" 
+                id="fileInput"
+                (change)="onFileSelected($event)"
+                class="file-input"
+                accept="*/*"
+              />
+              <label for="fileInput" class="file-upload-label">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">
+                  <span *ngIf="!selectedFile">Click to select file or drag & drop</span>
+                  <span *ngIf="selectedFile" class="selected-file">
+                    {{ getFileIcon(selectedFile.name) }} {{ selectedFile.name }}
+                    <br>
+                    <small>Size: {{ formatFileSize(selectedFile.size) }}</small>
+                  </span>
+                </div>
+              </label>
+            </div>
+            <small class="help-text">Maximum file size: 100MB. Supports documents, images, videos, code files, etc.</small>
+          </div>
+
+          <div class="form-group">
+            <label>Document Title <span class="required">*</span></label>
+            <input 
+              type="text"
+              formControlName="title"
+              class="form-control"
+              placeholder="e.g., Project Requirements Document"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Associated Stage (Optional)</label>
+            <select formControlName="stage" class="form-control">
+              <option value="">-- Select Stage --</option>
+              <option *ngFor="let stage of stages" [value]="stage.key">
+                {{ stage.icon }} {{ stage.label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Upload Progress -->
+          <div class="upload-progress" *ngIf="uploadProgress > 0">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="uploadProgress"></div>
+            </div>
+            <span class="progress-text">{{ uploadProgress }}%</span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeUploadModal()" [disabled]="isLoading">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading || uploadForm.invalid || !selectedFile">
+            <span *ngIf="isLoading">Uploading...</span>
+            <span *ngIf="!isLoading">📤 Upload Document</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

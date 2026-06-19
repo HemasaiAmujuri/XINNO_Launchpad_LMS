@@ -1,0 +1,224 @@
+<div class="feedback-management-container">
+  <div class="header">
+    <h1>Feedback Management</h1>
+    <button class="btn-primary" (click)="openCreateModal()">
+      <i class="icon-plus"></i> Create New Feedback Form
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <h3>Filters</h3>
+    <div class="filters-grid">
+      <div class="filter-item">
+        <label>Role</label>
+        <select [(ngModel)]="filters.forRole" (change)="applyFilters()">
+          <option value="">All</option>
+          <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label>Course Type</label>
+        <select [(ngModel)]="filters.courseType" (change)="applyFilters()">
+          <option value="">All</option>
+          <option *ngFor="let type of courseTypes" [value]="type">{{ type }}</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label>Status</label>
+        <select [(ngModel)]="filters.isActive" (change)="applyFilters()">
+          <option value="">All</option>
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn-secondary" (click)="clearFilters()">Clear Filters</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading feedback forms...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <p>{{ error }}</p>
+    <button class="btn-primary" (click)="loadForms()">Retry</button>
+  </div>
+
+  <!-- Forms List -->
+  <div *ngIf="!loading && !error" class="forms-list">
+    <div *ngIf="forms.length === 0" class="empty-state">
+      <p>No feedback forms found</p>
+    </div>
+
+    <div class="forms-grid">
+      <div *ngFor="let form of forms" class="form-card">
+        <div class="form-header">
+          <h3>{{ form.title }}</h3>
+          <span class="status-badge" [class.active]="form.isActive">
+            {{ form.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+
+        <p class="form-description">{{ form.description || 'No description' }}</p>
+
+        <div class="form-info">
+          <div class="info-row">
+            <span class="label">For Role:</span>
+            <span class="value">{{ form.forRole }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Course Type:</span>
+            <span class="value">{{ form.courseType || 'All' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Questions:</span>
+            <span class="value">{{ form.questions?.length || 0 }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Submissions:</span>
+            <span class="value">{{ form._count?.submissions || 0 }}</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-view" (click)="viewSubmissions(form.id)">
+            View Submissions
+          </button>
+          <button class="btn-analytics" (click)="viewAnalytics(form.id)">
+            Analytics
+          </button>
+          <button 
+            class="btn-toggle" 
+            [class.active]="form.isActive"
+            (click)="toggleFormStatus(form)"
+          >
+            {{ form.isActive ? 'Deactivate' : 'Activate' }}
+          </button>
+          <button class="btn-delete" (click)="deleteForm(form.id)">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Form Modal -->
+<div *ngIf="showCreateModal" class="modal-overlay" (click)="closeCreateModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Create Feedback Form</h2>
+      <button class="close-btn" (click)="closeCreateModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Title *</label>
+        <input 
+          type="text" 
+          [(ngModel)]="newForm.title" 
+          placeholder="Enter form title"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea 
+          [(ngModel)]="newForm.description" 
+          placeholder="Enter form description"
+          class="form-control"
+          rows="3"
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>For Role *</label>
+          <select [(ngModel)]="newForm.forRole" class="form-control">
+            <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Course Type</label>
+          <select [(ngModel)]="newForm.courseType" class="form-control">
+            <option value="">All</option>
+            <option *ngFor="let type of courseTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" [(ngModel)]="newForm.isActive" />
+          Active
+        </label>
+      </div>
+
+      <div class="questions-section">
+        <h3>Questions</h3>
+        
+        <div *ngFor="let question of newForm.questions; let i = index" class="question-item">
+          <div class="question-header">
+            <h4>Question {{ i + 1 }}</h4>
+            <button 
+              *ngIf="newForm.questions.length > 1" 
+              class="btn-remove" 
+              (click)="removeQuestion(i)"
+            >
+              Remove
+            </button>
+          </div>
+
+          <div class="form-group">
+            <label>Question Text *</label>
+            <textarea 
+              [(ngModel)]="question.questionText" 
+              placeholder="Enter question"
+              class="form-control"
+              rows="2"
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Type</label>
+              <select [(ngModel)]="question.questionType" class="form-control">
+                <option value="TEXT">Short Text</option>
+                <option value="TEXTAREA">Long Text</option>
+                <option value="MCQ">Multiple Choice</option>
+                <option value="RATING">Rating</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>
+                <input type="checkbox" [(ngModel)]="question.isRequired" />
+                Required
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-add-question" (click)="addQuestion()">
+          + Add Question
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeCreateModal()">Cancel</button>
+      <button class="btn-primary" (click)="createForm()">Create Form</button>
+    </div>
+  </div>
+</div>

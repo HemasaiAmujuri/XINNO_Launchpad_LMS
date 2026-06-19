@@ -1,0 +1,276 @@
+<div class="review-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>✅ Review Submissions</h1>
+      <p>Evaluate student submissions and publish results</p>
+    </div>
+    <a routerLink="/admin" class="btn btn-secondary">
+      ← Back to Admin Panel
+    </a>
+  </div>
+
+  <!-- Alert Messages -->
+  <div class="alert alert-success" *ngIf="success && !showEvaluationModal">
+    ✅ {{ success }}
+  </div>
+  <div class="alert alert-error" *ngIf="error && !showEvaluationModal">
+    ❌ {{ error }}
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-screen" *ngIf="isLoading && !selectedAssessment">
+    <div class="spinner"></div>
+    <p>Loading assessments...</p>
+  </div>
+
+  <!-- Assessments List -->
+  <div class="assessments-grid" *ngIf="!selectedAssessment && !isLoading">
+    <div 
+      *ngFor="let assessment of assessments" 
+      class="assessment-card"
+      (click)="selectAssessment(assessment)"
+    >
+      <div class="card-header">
+        <h3>{{ assessment.title }}</h3>
+        <div class="submission-badge">
+          {{ assessment.submissionCount || 0 }} Submissions
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-info">
+          <span>📚 {{ assessment.courseLevel }}</span>
+          <span>👥 {{ assessment.batchName }}</span>
+          <span>💯 {{ assessment.totalMarks }} marks</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn-view">View Submissions →</button>
+      </div>
+    </div>
+
+    <div *ngIf="assessments.length === 0" class="no-data">
+      <span class="no-data-icon">📭</span>
+      <p>No assessments found</p>
+      <a routerLink="/admin/create-assessment" class="btn btn-primary">
+        Create Assessment
+      </a>
+    </div>
+  </div>
+
+  <!-- Submissions List -->
+  <div class="submissions-view" *ngIf="selectedAssessment && !showEvaluationModal">
+    <div class="view-header">
+      <button class="btn btn-secondary" (click)="backToAssessments()">
+        ← Back
+      </button>
+      <div class="assessment-info">
+        <h2>{{ selectedAssessment.title }}</h2>
+        <p>{{ selectedAssessment.courseLevel }} | {{ selectedAssessment.batchName }}</p>
+      </div>
+      <button class="btn btn-success" (click)="exportToExcel()" [disabled]="submissions.length === 0">
+        📊 Export to Excel
+      </button>
+    </div>
+
+    <div class="loading-screen" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading submissions...</p>
+    </div>
+
+    <div class="submissions-table" *ngIf="!isLoading">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Student Name</th>
+            <th>Email</th>
+            <th>Batch</th>
+            <th>Submitted At</th>
+            <th>Marks</th>
+            <th>Percentage</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let submission of submissions; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ submission.studentName }}</td>
+            <td>{{ submission.studentEmail }}</td>
+            <td>{{ submission.studentBatch }}</td>
+            <td>{{ formatDate(submission.submittedAt) }}</td>
+            <td class="text-center">
+              <strong>{{ submission.obtainedMarks }} / {{ submission.totalMarks }}</strong>
+            </td>
+            <td class="text-center">
+              <strong>{{ getPercentage(submission) }}%</strong>
+            </td>
+            <td>
+              <span class="status-badge" [ngClass]="{
+                'status-pending': getSubmissionStatus(submission) === 'pending',
+                'status-passed': getSubmissionStatus(submission) === 'passed',
+                'status-failed': getSubmissionStatus(submission) === 'failed'
+              }">
+                {{ getSubmissionStatus(submission) }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-primary btn-sm" (click)="viewSubmission(submission)">
+                Review
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="submissions.length === 0">
+            <td colspan="9" class="no-data">
+              <p>No submissions yet</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Evaluation Modal -->
+  <div class="modal-overlay" *ngIf="showEvaluationModal" (click)="closeModal()">
+    <div class="modal-content large-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>📝 Evaluate Submission</h2>
+        <button class="close-btn" (click)="closeModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Alert in Modal -->
+        <div class="alert alert-success" *ngIf="success">
+          ✅ {{ success }}
+        </div>
+        <div class="alert alert-error" *ngIf="error">
+          ❌ {{ error }}
+        </div>
+
+        <div class="student-info" *ngIf="selectedSubmission">
+          <h3>Student: {{ selectedSubmission.studentName }}</h3>
+          <p>{{ selectedSubmission.studentEmail }} | {{ selectedSubmission.studentBatch }}</p>
+          <p><strong>Submitted:</strong> {{ formatDate(selectedSubmission.submittedAt) }}</p>
+        </div>
+
+        <!-- MCQ Answers (Auto-evaluated but editable by admin) -->
+        <div class="answers-section" *ngIf="mcqAnswers.length > 0">
+          <h3>✅ MCQ Questions (Auto-evaluated - You can override marks if needed)</h3>
+          <div *ngFor="let answer of mcqAnswers; let i = index" class="answer-card mcq-answer">
+            <div class="answer-header">
+              <strong>Q{{ i + 1 }}. {{ answer.questionText }}</strong>
+              <span class="marks-badge">{{ evaluationMarks[answer.id] || 0 }} / {{ answer.marks }} marks</span>
+            </div>
+            <div class="answer-body">
+              <div class="mcq-options">
+                <div *ngFor="let option of answer.options; let j = index" 
+                     class="mcq-option-display"
+                     [ngClass]="{
+                       'correct-option': option === answer.correctAnswer,
+                       'selected-option': option === answer.answerText,
+                       'wrong-option': option === answer.answerText && option !== answer.correctAnswer
+                     }">
+                  <span class="option-label">{{ getOptionLabel(j) }}.</span>
+                  <span class="option-text">{{ option }}</span>
+                  <span *ngIf="option === answer.correctAnswer" class="icon">✓</span>
+                  <span *ngIf="option === answer.answerText && option !== answer.correctAnswer" class="icon">✗</span>
+                </div>
+              </div>
+              
+              <!-- Admin can override MCQ marks -->
+              <div class="marks-input-group mcq-marks-override">
+                <label><strong>Override Marks (Optional):</strong></label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="evaluationMarks[answer.id]"
+                  [max]="answer.marks"
+                  min="0"
+                  class="marks-input"
+                  placeholder="0"
+                />
+                <span class="marks-max">/ {{ answer.marks }}</span>
+                <small class="help-text">💡 Change only if auto-evaluation is incorrect</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descriptive Answers (Manual evaluation) -->
+        <div class="answers-section" *ngIf="descriptiveAnswers.length > 0">
+          <h3>📝 Descriptive Questions (Manual Evaluation Required)</h3>
+          <div *ngFor="let answer of descriptiveAnswers; let i = index" class="answer-card descriptive-answer">
+            <div class="answer-header">
+              <strong>Q{{ mcqAnswers.length + i + 1 }}. {{ answer.questionText }}</strong>
+              <span class="marks-badge">Max {{ answer.marks }} marks</span>
+            </div>
+            <div class="answer-body">
+              <div class="student-answer">
+                <label><strong>Student's Answer:</strong></label>
+                <div class="answer-text">{{ answer.answerText || 'No answer provided' }}</div>
+              </div>
+              
+              <div class="sample-answer" *ngIf="answer.sampleAnswer">
+                <label><strong>Sample Answer:</strong></label>
+                <div class="answer-text sample">{{ answer.sampleAnswer }}</div>
+              </div>
+              
+              <div class="marks-input-group">
+                <label><strong>Award Marks:</strong></label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="evaluationMarks[answer.id]"
+                  [max]="answer.marks"
+                  min="0"
+                  class="marks-input"
+                  placeholder="0"
+                />
+                <span class="marks-max">/ {{ answer.marks }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="evaluation-summary">
+          <h3>📊 Evaluation Summary</h3>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <label>Total Marks:</label>
+              <div class="summary-value">{{ selectedSubmission?.totalMarks }}</div>
+            </div>
+            <div class="summary-item">
+              <label>Marks Awarded:</label>
+              <div class="summary-value">{{ totalEvaluatedMarks }}</div>
+            </div>
+            <div class="summary-item">
+              <label>Percentage:</label>
+              <div class="summary-value">
+                {{ selectedSubmission ? Math.round((totalEvaluatedMarks / selectedSubmission.totalMarks) * 100) : 0 }}%
+              </div>
+            </div>
+            <div class="summary-item">
+              <label>Result:</label>
+              <div class="summary-value" [ngClass]="{
+                'text-success': selectedSubmission && totalEvaluatedMarks >= (selectedSubmission.totalMarks * 0.4),
+                'text-danger': selectedSubmission && totalEvaluatedMarks < (selectedSubmission.totalMarks * 0.4)
+              }">
+                {{ selectedSubmission && totalEvaluatedMarks >= (selectedSubmission.totalMarks * 0.4) ? 'PASSED' : 'FAILED' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModal()" [disabled]="isLoading">
+          Cancel
+        </button>
+        <button class="btn btn-success" (click)="evaluateSubmission()" [disabled]="isLoading">
+          <span *ngIf="isLoading">Saving...</span>
+          <span *ngIf="!isLoading">💾 Save Evaluation & Update Marks</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

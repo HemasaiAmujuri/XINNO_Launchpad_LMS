@@ -1,0 +1,183 @@
+<div class="assessment-container" *ngIf="!loading">
+  <!-- Timer Header -->
+  <div class="timer-header" [class.critical]="isTimerCritical">
+    <div class="timer-info">
+      <span class="timer-icon">⏱️</span>
+      <div class="timer-display">
+        <span class="timer-label">Time Remaining:</span>
+        <span class="timer-value">{{ timerDisplay }}</span>
+      </div>
+    </div>
+    <div class="auto-save-status">
+      <span *ngIf="autoSaving" class="saving">💾 Saving...</span>
+      <span *ngIf="!autoSaving && lastSavedTime" class="saved">
+        ✓ Auto-saved {{ lastSavedTime | date:'short' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Assessment Info Bar -->
+  <div class="info-bar">
+    <div class="assessment-title">
+      <h2>{{ assessment.title }}</h2>
+      <span class="course-badge">{{ assessment.courseType }}</span>
+    </div>
+    <div class="progress-info">
+      <span>Question {{ currentQuestionIndex + 1 }} of {{ questions.length }}</span>
+      <span>|</span>
+      <span>Answered: {{ answeredCount }} / {{ questions.length }}</span>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress-bar-container">
+    <div class="progress-bar" [style.width.%]="progress"></div>
+  </div>
+
+  <!-- Question Navigator -->
+  <div class="question-navigator">
+    <div class="navigator-label">Jump to Question:</div>
+    <div class="question-grid">
+      <button
+        *ngFor="let question of questions; let i = index"
+        class="question-number"
+        [class.active]="i === currentQuestionIndex"
+        [class.answered]="isQuestionAnswered(i)"
+        (click)="jumpToQuestion(i)">
+        {{ i + 1 }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Question Card -->
+  <div class="question-card" *ngIf="currentQuestion">
+    <div class="question-header">
+      <div class="question-meta">
+        <span class="question-type" [class.mcq]="currentQuestion.questionType === 'MCQ'" 
+              [class.descriptive]="currentQuestion.questionType === 'DESCRIPTIVE'">
+          {{ currentQuestion.questionType }}
+        </span>
+        <span class="question-marks">{{ currentQuestion.marks }} Marks</span>
+      </div>
+    </div>
+
+    <div class="question-body">
+      <h3 class="question-text">
+        Question {{ currentQuestionIndex + 1 }}: {{ currentQuestion.questionText }}
+      </h3>
+
+      <form [formGroup]="answerForm" class="answer-section">
+        <!-- MCQ Options -->
+        <div *ngIf="currentQuestion.questionType === 'MCQ'" class="mcq-options">
+          <label *ngFor="let option of currentQuestion.options; let i = index" 
+                 class="mcq-option"
+                 [class.selected]="answerForm.get('answer')?.value === option">
+            <input 
+              type="radio" 
+              formControlName="answer" 
+              [value]="option"
+              name="answer">
+            <span class="option-label">{{ getOptionLabel(i) }}.</span>
+            <span class="option-text">{{ option }}</span>
+          </label>
+        </div>
+
+        <!-- Descriptive Answer -->
+        <div *ngIf="currentQuestion.questionType === 'DESCRIPTIVE'" class="descriptive-answer">
+          <textarea 
+            formControlName="answer"
+            class="answer-textarea"
+            placeholder="Type your answer here..."
+            [maxlength]="currentQuestion.characterLimit || 5000"
+            rows="8">
+          </textarea>
+          <div class="character-counter">
+            <span>{{ getCharacterCount() }}</span>
+            <span *ngIf="currentQuestion.characterLimit">
+              / {{ currentQuestion.characterLimit }}
+            </span>
+            <span> characters</span>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="question-nav-buttons">
+      <button 
+        class="btn btn-secondary"
+        (click)="previousQuestion()"
+        [disabled]="currentQuestionIndex === 0">
+        ← Previous
+      </button>
+
+      <button 
+        *ngIf="currentQuestionIndex < questions.length - 1"
+        class="btn btn-primary"
+        (click)="nextQuestion()">
+        Next →
+      </button>
+
+      <button 
+        *ngIf="currentQuestionIndex === questions.length - 1"
+        class="btn btn-submit"
+        (click)="confirmSubmit()">
+        Submit Assessment
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="alert alert-error">
+    {{ error }}
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading" class="loading-screen">
+  <div class="spinner"></div>
+  <p>Loading assessment...</p>
+</div>
+
+<!-- Submit Confirmation Modal -->
+<div *ngIf="showSubmitConfirm" class="modal-overlay" (click)="cancelSubmit()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Submit Assessment?</h2>
+      <button class="close-btn" (click)="cancelSubmit()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="submit-summary">
+        <div class="summary-item">
+          <strong>Total Questions:</strong>
+          <span>{{ questions.length }}</span>
+        </div>
+        <div class="summary-item">
+          <strong>Answered:</strong>
+          <span class="answered">{{ answeredCount }}</span>
+        </div>
+        <div class="summary-item">
+          <strong>Unanswered:</strong>
+          <span class="unanswered">{{ questions.length - answeredCount }}</span>
+        </div>
+        <div class="summary-item">
+          <strong>Time Remaining:</strong>
+          <span>{{ timerDisplay }}</span>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <strong>⚠️ Warning:</strong>
+        <p>Once submitted, you cannot change your answers. Please review before submitting.</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="cancelSubmit()">Cancel</button>
+      <button class="btn btn-submit" (click)="submitAssessment()" [disabled]="submitting">
+        {{ submitting ? 'Submitting...' : 'Confirm Submit' }}
+      </button>
+    </div>
+  </div>
+</div>

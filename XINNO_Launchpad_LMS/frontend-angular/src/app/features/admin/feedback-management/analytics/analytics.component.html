@@ -1,0 +1,32 @@
+<div class="analytics-container">
+  <div class="header">
+    <h1>Feedback Analytics</h1>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading analytics...</p>
+  </div>
+
+  <div *ngIf="error && !loading" class="error-state">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && analytics" class="analytics-body">
+    <p>Total Submissions: {{ analytics.totalSubmissions }}</p>
+
+    <div *ngFor="let q of analytics.questionAnalytics" class="question-analytic">
+      <h3>{{ q.questionText }}</h3>
+      <p>Total Responses: {{ q.totalResponses }}</p>
+      <div *ngIf="q.optionDistribution">
+        <div *ngFor="let opt of (q.optionDistribution | keyvalue)">
+          <span class="opt-key">{{ opt.key }}</span>: <span class="opt-val">{{ opt.value }}</span>
+        </div>
+      </div>
+      <div *ngIf="q.sampleResponses">
+        <h4>Sample Responses</h4>
+        <div *ngFor="let s of q.sampleResponses">{{ s.submittedBy }}: {{ s.response }}</div>
+      </div>
+    </div>
+  </div>
+</div>

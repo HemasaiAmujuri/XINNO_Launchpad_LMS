@@ -1,0 +1,124 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
+  <!-- Welcome Header -->
+  <div class="max-w-7xl mx-auto mb-8">
+    <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+      <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+        Welcome, {{ currentUser?.name || 'User' }}! 👋
+      </h1>
+      <p class="text-gray-600">Here's your dashboard overview</p>
+    </div>
+  </div>
+
+  <!-- Dynamic Navigation Cards -->
+  <div class="max-w-7xl mx-auto mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Assessments Card -->
+      <a routerLink="/assessments" class="group block bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl p-6 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+            <i class="bi bi-clipboard-check text-2xl text-white"></i>
+          </div>
+          <i class="bi bi-arrow-right text-white text-xl group-hover:translate-x-1 transition-transform"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2">Assessments</h3>
+        <p class="text-blue-100 text-sm">View and take your assessments</p>
+      </a>
+
+      <!-- Projects Card -->
+      <a routerLink="/projects" class="group block bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl p-6 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+            <i class="bi bi-folder text-2xl text-white"></i>
+          </div>
+          <i class="bi bi-arrow-right text-white text-xl group-hover:translate-x-1 transition-transform"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2">Projects</h3>
+        <p class="text-emerald-100 text-sm">Manage your project submissions</p>
+      </a>
+
+      <!-- Feedbacks Card (Student/Trainer) -->
+      <a *ngIf="currentUser?.role !== 'ADMIN'" routerLink="/my-feedbacks" class="group block bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl p-6 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+            <i class="bi bi-chat-left-text text-2xl text-white"></i>
+          </div>
+          <i class="bi bi-arrow-right text-white text-xl group-hover:translate-x-1 transition-transform"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2">Feedbacks</h3>
+        <p class="text-purple-100 text-sm">View your feedback history</p>
+      </a>
+
+      <!-- Admin Panel Card (Admin only) -->
+      <a *ngIf="currentUser?.role === 'ADMIN'" routerLink="/admin" class="group block bg-gradient-to-br from-orange-500 to-orange-700 rounded-2xl p-6 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+            <i class="bi bi-gear text-2xl text-white"></i>
+          </div>
+          <i class="bi bi-arrow-right text-white text-xl group-hover:translate-x-1 transition-transform"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2">Admin Panel</h3>
+        <p class="text-orange-100 text-sm">Manage users and settings</p>
+      </a>
+
+      <!-- Extra Card for better grid layout -->
+      <div *ngIf="currentUser?.role !== 'ADMIN'" class="bg-gradient-to-br from-pink-500 to-pink-700 rounded-2xl p-6 shadow-lg opacity-50">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+            <i class="bi bi-star text-2xl text-white"></i>
+          </div>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2">Coming Soon</h3>
+        <p class="text-pink-100 text-sm">More features on the way</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Information Card -->
+  <div class="max-w-7xl mx-auto">
+    <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+      <div class="flex items-center gap-4 mb-6">
+        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center font-bold text-3xl shadow-lg">
+          {{ currentUser?.name?.charAt(0)?.toUpperCase() || 'U' }}
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">{{ currentUser?.name || 'User' }}</h2>
+          <p class="text-gray-600">{{ currentUser?.role || 'STUDENT' }}</p>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="bi bi-envelope text-blue-600"></i>
+            <p class="text-sm font-medium text-gray-600">Email</p>
+          </div>
+          <p class="text-base font-semibold text-gray-900">{{ currentUser?.email || 'user@oraxinno.com' }}</p>
+        </div>
+        
+        <div class="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="bi bi-shield-check text-purple-600"></i>
+            <p class="text-sm font-medium text-gray-600">Role</p>
+          </div>
+          <p class="text-base font-semibold text-gray-900">{{ currentUser?.role || 'STUDENT' }}</p>
+        </div>
+        
+        <div *ngIf="currentUser?.batchName" class="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl border border-emerald-200">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="bi bi-people text-emerald-600"></i>
+            <p class="text-sm font-medium text-gray-600">Batch</p>
+          </div>
+          <p class="text-base font-semibold text-gray-900">{{ currentUser?.batchName }}</p>
+        </div>
+        
+        <div *ngIf="currentUser?.courseType" class="p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border border-orange-200">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="bi bi-book text-orange-600"></i>
+            <p class="text-sm font-medium text-gray-600">Course</p>
+          </div>
+          <p class="text-base font-semibold text-gray-900">{{ currentUser?.courseType }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

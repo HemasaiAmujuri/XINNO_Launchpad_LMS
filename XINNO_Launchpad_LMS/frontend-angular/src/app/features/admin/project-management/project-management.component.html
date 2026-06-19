@@ -1,0 +1,157 @@
+<div class="project-management-container">
+  <div class="header">
+    <h1>Project Management</h1>
+    <button class="btn-primary" (click)="createProject()">
+      <i class="icon-plus"></i> Create New Project
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <h3>Filters</h3>
+    <div class="filters-grid">
+      <div class="filter-item">
+        <label>Course Type</label>
+        <select [(ngModel)]="filters.courseType" (change)="applyFilters()">
+          <option value="">All</option>
+          <option *ngFor="let type of courseTypes" [value]="type">{{ type }}</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label>Student</label>
+        <select [(ngModel)]="filters.studentId" (change)="applyFilters()">
+          <option value="">All</option>
+          <option *ngFor="let student of students" [value]="student.id">
+            {{ student.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label>Mentor</label>
+        <select [(ngModel)]="filters.mentorId" (change)="applyFilters()">
+          <option value="">All</option>
+          <option *ngFor="let mentor of mentors" [value]="mentor.id">
+            {{ mentor.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label>Stage</label>
+        <select [(ngModel)]="filters.stage" (change)="applyFilters()">
+          <option value="">All</option>
+          <option *ngFor="let stage of stages" [value]="stage">
+            {{ getStageDisplayName(stage) }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label>Status</label>
+        <select [(ngModel)]="filters.isCompleted" (change)="applyFilters()">
+          <option value="">All</option>
+          <option value="false">In Progress</option>
+          <option value="true">Completed</option>
+        </select>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn-secondary" (click)="clearFilters()">Clear Filters</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading projects...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <p>{{ error }}</p>
+    <button class="btn-primary" (click)="loadProjects()">Retry</button>
+  </div>
+
+  <!-- Projects List -->
+  <div *ngIf="!loading && !error" class="projects-list">
+    <div *ngIf="filteredProjects.length === 0" class="empty-state">
+      <p>No projects found</p>
+    </div>
+
+    <div class="projects-grid">
+      <div *ngFor="let project of filteredProjects" class="project-card">
+        <div class="project-header">
+          <h3>{{ project.title }}</h3>
+          <span
+            class="completion-badge"
+            [class.completed]="project.isCompleted"
+          >
+            {{ project.completionPercent }}% Complete
+          </span>
+        </div>
+
+        <div class="project-info">
+          <div class="info-row">
+            <span class="label">Student:</span>
+            <span class="value">{{ project.student?.name }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Mentor:</span>
+            <span class="value">{{ project.mentor?.name }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Course:</span>
+            <span class="value">{{ project.courseType }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Current Stage:</span>
+            <span class="value">{{ getStageDisplayName(project.currentStage) }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Start Date:</span>
+            <span class="value">{{ project.startDate | date: 'mediumDate' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">End Date:</span>
+            <span class="value">{{ project.endDate | date: 'mediumDate' }}</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-container">
+          <div
+            class="progress-bar"
+            [style.width.%]="project.completionPercent"
+          ></div>
+        </div>
+
+        <!-- Stages Summary -->
+        <div class="stages-summary">
+          <div
+            *ngFor="let stage of project.stageProgress?.slice(0, 3)"
+            class="stage-item"
+            [ngClass]="getStatusClass(stage.status)"
+          >
+            <span class="stage-name">{{ getStageDisplayName(stage.stage) }}</span>
+            <span class="stage-status">{{ stage.status }}</span>
+          </div>
+        </div>
+
+        <div class="project-actions">
+          <button class="btn-view" (click)="viewProject(project.id)">
+            View Details
+          </button>
+          <button class="btn-edit" (click)="editProject(project.id)">
+            Edit
+          </button>
+          <button class="btn-delete" (click)="deleteProject(project.id)">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

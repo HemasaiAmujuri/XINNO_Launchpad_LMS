@@ -1,0 +1,23 @@
+/* Main Layout Component Styles */
+.bg-year {
+  background-color: white;
+}
+
+:host ::ng-deep .dark .bg-year {
+  background-color: rgb(75 85 99);
+}
+
+/* Ensure no horizontal scroll */
+* {
+  box-sizing: border-box;
+}
+
+/* Smooth transitions */
+a, button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Active link style enhancement */
+.router-link-active {
+  font-weight: 600;
+}

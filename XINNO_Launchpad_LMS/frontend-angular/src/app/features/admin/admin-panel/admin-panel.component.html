@@ -1,0 +1,126 @@
+<div class="admin-panel-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>🛠️ {{ isTrainer ? 'Trainer Dashboard' : 'Admin Dashboard' }}</h1>
+      <p>{{ isTrainer ? 'Manage projects, evaluate submissions, and give feedback' : 'Manage assessments, questions, and student submissions' }}</p>
+    </div>
+    <a routerLink="/dashboard" class="btn btn-secondary">
+      ← Back to Dashboard
+    </a>
+  </div>
+
+  <!-- Admin Cards Grid -->
+  <div class="admin-cards-grid">
+    <div 
+      *ngFor="let card of filteredCards" 
+      class="admin-card"
+      [routerLink]="card.route"
+    >
+      <div class="card-icon" [style.background]="card.color">
+        {{ card.icon }}
+      </div>
+      <div class="card-content">
+        <h3>{{ card.title }}</h3>
+        <p>{{ card.description }}</p>
+        <div class="card-stats">
+          <span class="stats-badge">{{ card.stats }}</span>
+        </div>
+      </div>
+      <div class="card-arrow">→</div>
+    </div>
+  </div>
+
+  <!-- Quick Info Section -->
+  <div class="quick-info-section">
+    <div class="info-card">
+      <h3>📚 Getting Started</h3>
+      <ul *ngIf="isAdmin">
+        <li><strong>Step 1:</strong> Create questions in the Question Bank</li>
+        <li><strong>Step 2:</strong> Build assessments and assign to students</li>
+        <li><strong>Step 3:</strong> Review submissions and publish results</li>
+      </ul>
+      <ul *ngIf="isTrainer">
+        <li><strong>Step 1:</strong> View your assigned student projects</li>
+        <li><strong>Step 2:</strong> Review submissions and provide feedback</li>
+        <li><strong>Step 3:</strong> Evaluate and approve project stages</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h3>⚡ Quick Tips</h3>
+      <ul *ngIf="isAdmin">
+        <li>MCQ questions are auto-evaluated</li>
+        <li>Descriptive answers require manual grading</li>
+        <li>Set appropriate time limits for assessments</li>
+        <li>Use difficulty levels to organize questions</li>
+      </ul>
+      <ul *ngIf="isTrainer">
+        <li>You can only manage projects where you're the mentor</li>
+        <li>Approve student stages after reviewing their work</li>
+        <li>Use direct feedback for individual student guidance</li>
+        <li>Update project status and completion percentage</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Assessments Management Section (Admin Only) -->
+  <div class="assessments-section" *ngIf="isAdmin">
+    <div class="section-header">
+      <h2>📋 Manage Assessments</h2>
+      <a routerLink="/admin/create-assessment" class="btn btn-primary">
+        + Create New Assessment
+      </a>
+    </div>
+
+    <div class="loading-container" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Loading assessments...</p>
+    </div>
+
+    <div class="assessments-grid" *ngIf="!loading && assessments.length > 0">
+      <div *ngFor="let assessment of assessments" class="assessment-card">
+        <div class="assessment-header">
+          <h3>{{ assessment.title }}</h3>
+          <span class="status-badge" [class.published]="assessment.isPublished">
+            {{ assessment.isPublished ? '✓ Published' : '○ Draft' }}
+          </span>
+        </div>
+        
+        <div class="assessment-info">
+          <div class="info-item">
+            <span class="label">Course:</span>
+            <span class="value">{{ assessment.courseType }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Batch:</span>
+            <span class="value">{{ assessment.batchName || 'N/A' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Total Marks:</span>
+            <span class="value">{{ assessment.totalMarks }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Time Limit:</span>
+            <span class="value">{{ assessment.timeLimitMinutes }} min</span>
+          </div>
+        </div>
+
+        <div class="assessment-stats">
+          <span class="stat-item">📝 {{ assessment._count?.questions || 0 }} Questions</span>
+          <span class="stat-item">👥 {{ assessment._count?.attempts || 0 }} Attempts</span>
+        </div>
+
+        <div class="assessment-actions">
+          <button class="btn btn-edit" (click)="editAssessment(assessment.id)">
+            ✏️ Edit
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="no-assessments" *ngIf="!loading && assessments.length === 0">
+      <p>No assessments created yet. Click "Create New Assessment" to get started.</p>
+    </div>
+  </div>
+</div>

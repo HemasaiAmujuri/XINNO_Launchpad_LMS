@@ -1,0 +1,155 @@
+<div class="submissions-container">
+  <div class="header">
+    <h2>Feedback Submissions: {{ formTitle }}</h2>
+    <button class="btn btn-secondary" routerLink="/admin/feedback">
+      ← Back to Feedback Forms
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading submissions...</p>
+  </div>
+
+  <div *ngIf="error && !loading" class="error-state alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && submissions.length === 0" class="empty-state">
+    <i class="bi bi-inbox"></i>
+    <p>No submissions found for this feedback form.</p>
+  </div>
+
+  <div *ngIf="!loading && !error && submissions.length > 0" class="submissions-list">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Student Name</th>
+            <th>Email</th>
+            <th>Submitted At</th>
+            <th>Status</th>
+            <th>Review</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let submission of submissions">
+            <td>
+              <strong>{{ submission.user?.name || 'N/A' }}</strong>
+            </td>
+            <td>{{ submission.user?.email || 'N/A' }}</td>
+            <td>{{ formatDate(submission.submittedAt) }}</td>
+            <td>
+              <span 
+                class="badge"
+                [ngClass]="{
+                  'badge-success': submission.reviews && submission.reviews.length > 0,
+                  'badge-warning': !submission.reviews || submission.reviews.length === 0
+                }">
+                {{ submission.reviews && submission.reviews.length > 0 ? 'Reviewed' : 'Pending Review' }}
+              </span>
+            </td>
+            <td>
+              <div *ngIf="submission.reviews && submission.reviews.length > 0">
+                <div class="review-summary">
+                  <div class="stars">
+                    <i 
+                      *ngFor="let star of getStars(5)" 
+                      class="bi"
+                      [ngClass]="{
+                        'bi-star-fill text-warning': star <= submission.reviews[0].rating,
+                        'bi-star': star > submission.reviews[0].rating
+                      }">
+                    </i>
+                  </div>
+                  <small class="text-muted">
+                    by {{ submission.reviews[0].reviewer?.name || 'Admin' }}
+                  </small>
+                </div>
+              </div>
+              <span *ngIf="!submission.reviews || submission.reviews.length === 0" class="text-muted">
+                Not reviewed yet
+              </span>
+            </td>
+            <td>
+              <button 
+                class="btn btn-sm btn-primary"
+                (click)="openReviewModal(submission)">
+                <i class="bi bi-pencil"></i>
+                {{ submission.reviews && submission.reviews.length > 0 ? 'Update' : 'Add Review' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal" [class.show]="showReviewModal" *ngIf="showReviewModal">
+  <div class="modal-overlay" (click)="closeReviewModal()"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Add Feedback Review</h3>
+      <button class="close-btn" (click)="closeReviewModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="selectedSubmission" class="submission-info mb-3">
+        <p><strong>Student:</strong> {{ selectedSubmission.user?.name }}</p>
+        <p><strong>Email:</strong> {{ selectedSubmission.user?.email }}</p>
+        <p><strong>Submitted:</strong> {{ formatDate(selectedSubmission.submittedAt) }}</p>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Rating (Required) *</label>
+        <div class="star-rating">
+          <i 
+            *ngFor="let star of getStars(5)"
+            class="bi star-icon"
+            [ngClass]="{
+              'bi-star-fill text-warning': star <= reviewForm.rating,
+              'bi-star': star > reviewForm.rating
+            }"
+            (click)="setRating(star)">
+          </i>
+        </div>
+        <small class="text-muted">Click on stars to rate (1-5)</small>
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="comments" class="form-label">Comments / Feedback</label>
+        <textarea
+          id="comments"
+          class="form-control"
+          rows="5"
+          [(ngModel)]="reviewForm.comments"
+          placeholder="Enter your feedback comments here...">
+        </textarea>
+      </div>
+
+      <div *ngIf="selectedSubmission?.responses && selectedSubmission.responses.length > 0" class="responses-section">
+        <h5>Student Responses:</h5>
+        <div class="response-item" *ngFor="let response of selectedSubmission.responses">
+          <p class="question-text">
+            <strong>Q:</strong> {{ response.question?.questionText }}
+          </p>
+          <p class="answer-text">
+            <strong>A:</strong> {{ response.responseText || 'N/A' }}
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeReviewModal()">Cancel</button>
+      <button 
+        class="btn btn-primary" 
+        (click)="submitReview()"
+        [disabled]="!reviewForm.rating">
+        Submit Review
+      </button>
+    </div>
+  </div>
+</div>
+
